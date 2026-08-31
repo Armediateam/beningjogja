@@ -18,13 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
-  { source: "WhatsApp", bookings: 125, fill: "var(--color-whatsapp)" },
-  { source: "Website", bookings: 85, fill: "var(--color-website)" },
-  { source: "Instagram", bookings: 45, fill: "var(--color-instagram)" },
-  { source: "Traveloka", bookings: 30, fill: "var(--color-traveloka)" },
-  { source: "Tiket.com", bookings: 20, fill: "var(--color-tiket)" },
-]
+const chartData: any[] = [];
 
 const chartConfig = {
   bookings: {

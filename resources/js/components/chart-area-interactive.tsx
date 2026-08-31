@@ -31,99 +31,7 @@ import {
 
 export const description = "Statistik Reservasi Bening Villa & Pool"
 
-const chartData = [
-  { date: "2024-04-01", villa: 2, pool: 5 },
-  { date: "2024-04-02", villa: 1, pool: 8 },
-  { date: "2024-04-03", villa: 1, pool: 2 },
-  { date: "2024-04-04", villa: 2, pool: 6 },
-  { date: "2024-04-05", villa: 3, pool: 9 },
-  { date: "2024-04-06", villa: 3, pool: 12 },
-  { date: "2024-04-07", villa: 2, pool: 8 },
-  { date: "2024-04-08", villa: 4, pool: 10 },
-  { date: "2024-04-09", villa: 1, pool: 3 },
-  { date: "2024-04-10", villa: 2, pool: 5 },
-  { date: "2024-04-11", villa: 3, pool: 11 },
-  { date: "2024-04-12", villa: 2, pool: 7 },
-  { date: "2024-04-13", villa: 3, pool: 12 },
-  { date: "2024-04-14", villa: 1, pool: 8 },
-  { date: "2024-04-15", villa: 1, pool: 7 },
-  { date: "2024-04-16", villa: 1, pool: 9 },
-  { date: "2024-04-17", villa: 4, pool: 14 },
-  { date: "2024-04-18", villa: 3, pool: 15 },
-  { date: "2024-04-19", villa: 2, pool: 8 },
-  { date: "2024-04-20", villa: 1, pool: 5 },
-  { date: "2024-04-21", villa: 1, pool: 6 },
-  { date: "2024-04-22", villa: 2, pool: 7 },
-  { date: "2024-04-23", villa: 1, pool: 8 },
-  { date: "2024-04-24", villa: 3, pool: 9 },
-  { date: "2024-04-25", villa: 2, pool: 8 },
-  { date: "2024-04-26", villa: 1, pool: 5 },
-  { date: "2024-04-27", villa: 3, pool: 14 },
-  { date: "2024-04-28", villa: 1, pool: 8 },
-  { date: "2024-04-29", villa: 3, pool: 9 },
-  { date: "2024-04-30", villa: 4, pool: 12 },
-  { date: "2024-05-01", villa: 1, pool: 8 },
-  { date: "2024-05-02", villa: 2, pool: 11 },
-  { date: "2024-05-03", villa: 2, pool: 9 },
-  { date: "2024-05-04", villa: 3, pool: 14 },
-  { date: "2024-05-05", villa: 4, pool: 13 },
-  { date: "2024-05-06", villa: 4, pool: 15 },
-  { date: "2024-05-07", villa: 3, pool: 10 },
-  { date: "2024-05-08", villa: 1, pool: 7 },
-  { date: "2024-05-09", villa: 2, pool: 8 },
-  { date: "2024-05-10", villa: 2, pool: 11 },
-  { date: "2024-05-11", villa: 3, pool: 9 },
-  { date: "2024-05-12", villa: 1, pool: 8 },
-  { date: "2024-05-13", villa: 1, pool: 6 },
-  { date: "2024-05-14", villa: 4, pool: 15 },
-  { date: "2024-05-15", villa: 4, pool: 12 },
-  { date: "2024-05-16", villa: 3, pool: 14 },
-  { date: "2024-05-17", villa: 4, pool: 14 },
-  { date: "2024-05-18", villa: 3, pool: 11 },
-  { date: "2024-05-19", villa: 2, pool: 8 },
-  { date: "2024-05-20", villa: 1, pool: 7 },
-  { date: "2024-05-21", villa: 1, pool: 5 },
-  { date: "2024-05-22", villa: 1, pool: 4 },
-  { date: "2024-05-23", villa: 2, pool: 9 },
-  { date: "2024-05-24", villa: 2, pool: 8 },
-  { date: "2024-05-25", villa: 2, pool: 8 },
-  { date: "2024-05-26", villa: 2, pool: 7 },
-  { date: "2024-05-27", villa: 4, pool: 15 },
-  { date: "2024-05-28", villa: 2, pool: 9 },
-  { date: "2024-05-29", villa: 1, pool: 5 },
-  { date: "2024-05-30", villa: 3, pool: 10 },
-  { date: "2024-05-31", villa: 1, pool: 8 },
-  { date: "2024-06-01", villa: 1, pool: 7 },
-  { date: "2024-06-02", villa: 4, pool: 14 },
-  { date: "2024-06-03", villa: 1, pool: 6 },
-  { date: "2024-06-04", villa: 4, pool: 12 },
-  { date: "2024-06-05", villa: 1, pool: 5 },
-  { date: "2024-06-06", villa: 2, pool: 9 },
-  { date: "2024-06-07", villa: 3, pool: 11 },
-  { date: "2024-06-08", villa: 3, pool: 10 },
-  { date: "2024-06-09", villa: 4, pool: 15 },
-  { date: "2024-06-10", villa: 1, pool: 8 },
-  { date: "2024-06-11", villa: 1, pool: 6 },
-  { date: "2024-06-12", villa: 4, pool: 14 },
-  { date: "2024-06-13", villa: 1, pool: 5 },
-  { date: "2024-06-14", villa: 4, pool: 12 },
-  { date: "2024-06-15", villa: 3, pool: 11 },
-  { date: "2024-06-16", villa: 3, pool: 10 },
-  { date: "2024-06-17", villa: 4, pool: 15 },
-  { date: "2024-06-18", villa: 1, pool: 7 },
-  { date: "2024-06-19", villa: 3, pool: 9 },
-  { date: "2024-06-20", villa: 4, pool: 14 },
-  { date: "2024-06-21", villa: 1, pool: 8 },
-  { date: "2024-06-22", villa: 3, pool: 9 },
-  { date: "2024-06-23", villa: 4, pool: 15 },
-  { date: "2024-06-24", villa: 1, pool: 8 },
-  { date: "2024-06-25", villa: 1, pool: 7 },
-  { date: "2024-06-26", villa: 4, pool: 12 },
-  { date: "2024-06-27", villa: 4, pool: 15 },
-  { date: "2024-06-28", villa: 1, pool: 8 },
-  { date: "2024-06-29", villa: 1, pool: 6 },
-  { date: "2024-06-30", villa: 4, pool: 13 },
-]
+const defaultChartData: any[] = []
 
 const chartConfig = {
   visitors: {
@@ -139,7 +47,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive() {
+export function ChartAreaInteractive({ chartData }: { chartData?: any[] }) {
+  const currentData = chartData || defaultChartData;
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("90d")
 
@@ -149,9 +58,9 @@ export function ChartAreaInteractive() {
     }
   }, [isMobile])
 
-  const filteredData = chartData.filter((item) => {
+  const filteredData = currentData.filter((item) => {
     const date = new Date(item.date)
-    const referenceDate = new Date("2024-06-30")
+    const referenceDate = new Date() // Use current date for dynamic data
     let daysToSubtract = 90
     if (timeRange === "30d") {
       daysToSubtract = 30

@@ -18,14 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
-  { subject: "Kebersihan", score: 95 },
-  { subject: "Fasilitas", score: 88 },
-  { subject: "Pelayanan", score: 92 },
-  { subject: "Lokasi", score: 85 },
-  { subject: "Harga", score: 90 },
-  { subject: "Kenyamanan", score: 96 },
-]
+const chartData: any[] = [];
 
 const chartConfig = {
   score: {

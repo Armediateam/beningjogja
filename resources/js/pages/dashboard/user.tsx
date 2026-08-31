@@ -2,11 +2,7 @@ import { Head } from '@inertiajs/react';
 import { dashboard } from '@/routes';
 import { UserDataTable } from '@/components/user-table';
 
-const userData = [
-    { id: 1, name: 'Dedy Raikhan', email: 'dedyraikhanarwan@gmail.com', role: 'Admin', status: 'Active', lastLogin: '10 mins ago' },
-    { id: 2, name: 'Admin Bening', email: 'admin@beningjogja.com', role: 'Manager', status: 'Active', lastLogin: '2 hours ago' },
-    { id: 3, name: 'Staf Lapangan', email: 'staff@beningjogja.com', role: 'Staff', status: 'Inactive', lastLogin: '3 days ago' },
-];
+const userData: any[] = [];
 
 export default function UserContent() {
     return (

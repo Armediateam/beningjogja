@@ -47,6 +47,16 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -185,10 +195,7 @@ export function CustomerDataTable({
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  }),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {})
-  )
+  })
 
   const table = useTable({
     features,
@@ -206,8 +213,6 @@ export function CustomerDataTable({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
   })
-
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -247,10 +252,63 @@ export function CustomerDataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm">
-            <IconPlus />
-            <span className="hidden lg:inline">Add Customer</span>
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <IconPlus />
+                <span className="hidden lg:inline">Add Customer</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Customer</DialogTitle>
+                <DialogDescription>
+                  Enter the details for the new customer here. Click save when you're done.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="flex flex-col gap-4 mt-2">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="new-name">Full Name</Label>
+                  <Input id="new-name" placeholder="John Doe" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-phone">WhatsApp / Phone</Label>
+                    <Input id="new-phone" placeholder="+62 812-3456-7890" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-email">Email</Label>
+                    <Input id="new-email" type="email" placeholder="john@example.com" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-totalBookings">Total Bookings</Label>
+                    <Input id="new-totalBookings" type="number" defaultValue="0" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-status">Member Status</Label>
+                    <Select defaultValue="New">
+                      <SelectTrigger id="new-status" className="w-full">
+                        <SelectValue placeholder="Select a status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="VIP">VIP</SelectItem>
+                        <SelectItem value="Regular">Regular</SelectItem>
+                        <SelectItem value="New">New</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter className="mt-4">
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="button" onClick={() => toast.success("Customer saved!")}>Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       
@@ -264,7 +322,7 @@ export function CustomerDataTable({
                       return (
                         <TableHead key={header.id} colSpan={header.colSpan}>
                           {header.isPlaceholder ? null : (
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            flexRender(header.column.columnDef.header, header.getContext())
                           )}
                         </TableHead>
                       )
@@ -274,7 +332,7 @@ export function CustomerDataTable({
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
                 {table.getRowModel().rows?.length ? (
-                  {table.getRowModel().rows.map((row) => (
+                  table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
@@ -282,7 +340,7 @@ export function CustomerDataTable({
                         </TableCell>
                       ))}
                     </TableRow>
-                  ))}
+                  ))
                 ) : (
                   <TableRow>
                     <TableCell
@@ -297,10 +355,6 @@ export function CustomerDataTable({
             </Table>
         </div>
         <div className="flex items-center justify-between">
-          <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">

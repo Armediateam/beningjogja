@@ -19,13 +19,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
-  { category: "Villa", visitors: 275, fill: "var(--color-villa)" },
-  { category: "Pool Pagi", visitors: 200, fill: "var(--color-poolPagi)" },
-  { category: "Pool Siang", visitors: 187, fill: "var(--color-poolSiang)" },
-  { category: "Pool Malam", visitors: 173, fill: "var(--color-poolMalam)" },
-  { category: "Pool Full", visitors: 90, fill: "var(--color-poolFull)" },
-]
+const chartData: any[] = [];
 
 const chartConfig = {
   visitors: {

@@ -18,20 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
-  { month: "Jan", villa: 18600000, pool: 8000000 },
-  { month: "Feb", villa: 30500000, pool: 20000000 },
-  { month: "Mar", villa: 23700000, pool: 12000000 },
-  { month: "Apr", villa: 7300000, pool: 19000000 },
-  { month: "May", villa: 20900000, pool: 13000000 },
-  { month: "Jun", villa: 21400000, pool: 14000000 },
-  { month: "Jul", villa: 28500000, pool: 22000000 },
-  { month: "Agu", villa: 24200000, pool: 18000000 },
-  { month: "Sep", villa: 19000000, pool: 11000000 },
-  { month: "Okt", villa: 21500000, pool: 14500000 },
-  { month: "Nov", villa: 23400000, pool: 16000000 },
-  { month: "Des", villa: 38900000, pool: 26000000 },
-]
+const chartData: any[] = [];
 
 const chartConfig = {
   villa: {

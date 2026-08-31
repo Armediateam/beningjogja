@@ -9,14 +9,25 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-export function SectionCards() {
+export function SectionCards({ stats }: { stats?: any }) {
+  const currentStats = stats || {
+    revenue: 0,
+    reservations: 0,
+    newCustomers: 0,
+    occupancy: 0,
+  };
+
+  const formatRupiah = (number: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+  };
+
   return (
     <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Pendapatan</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            Rp 45.250.000
+            {formatRupiah(currentStats.revenue)}
           </CardTitle>
           <div>
             <Badge variant="outline">
@@ -38,7 +49,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Reservasi</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            124
+            {currentStats.reservations}
           </CardTitle>
           <div>
             <Badge variant="outline">
@@ -60,7 +71,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Pelanggan Baru</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45
+            {currentStats.newCustomers}
           </CardTitle>
           <div>
             <Badge variant="outline">
@@ -80,7 +91,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Tingkat Hunian (Occupancy)</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            85%
+            {currentStats.occupancy}%
           </CardTitle>
           <div>
             <Badge variant="outline">

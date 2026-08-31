@@ -3,15 +3,9 @@ import { dashboard } from '@/routes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookingDataTable } from '@/components/booking-table';
 
-const villaData = [
-  { id: 1, bookingId: 'VIL-001', customer: 'John Doe', type: 'Villa', status: 'Confirmed', amount: 'Rp 2.500.000', date: '01 Sep - 03 Sep 2026' },
-  { id: 2, bookingId: 'VIL-002', customer: 'Jane Smith', type: 'Villa', status: 'Pending', amount: 'Rp 2.500.000', date: '10 Sep - 12 Sep 2026' },
-];
+const villaData: any[] = [];
 
-const poolData = [
-  { id: 3, bookingId: 'POOL-001', customer: 'Budi Santoso', type: 'Private Pool', status: 'Confirmed', amount: 'Rp 150.000', date: '05 Sep 2026 (14:00 - 16:00)' },
-  { id: 4, bookingId: 'POOL-002', customer: 'Siti Aminah', type: 'Private Pool', status: 'Completed', amount: 'Rp 200.000', date: '06 Sep 2026 (09:00 - 12:00)' },
-];
+const poolData: any[] = [];
 
 export default function BookingContent() {
     return (

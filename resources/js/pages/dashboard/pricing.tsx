@@ -3,18 +3,9 @@ import { dashboard } from '@/routes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PricingDataTable } from '@/components/pricing-table';
 
-const villaPrices = [
-    { id: 1, name: 'Weekday (Senin - Kamis)', type: 'Regular', price: 'Rp 2.500.000', status: 'Active' },
-    { id: 2, name: 'Weekend (Jumat - Minggu)', type: 'Regular', price: 'Rp 3.000.000', status: 'Active' },
-    { id: 3, name: 'Peak Season / Lebaran', type: 'Holiday', price: 'Rp 4.500.000', status: 'Inactive' },
-];
+const villaPrices: any[] = [];
 
-const poolPrices = [
-    { id: 1, name: 'Sesi Pagi (08:00 - 12:00)', type: '4 Jam', price: 'Rp 150.000', status: 'Active' },
-    { id: 2, name: 'Sesi Siang (13:00 - 17:00)', type: '4 Jam', price: 'Rp 200.000', status: 'Active' },
-    { id: 3, name: 'Sesi Malam (18:00 - 22:00)', type: '4 Jam', price: 'Rp 250.000', status: 'Active' },
-    { id: 4, name: 'Full Day', type: '12 Jam', price: 'Rp 500.000', status: 'Inactive' },
-];
+const poolPrices: any[] = [];
 
 export default function PricingContent() {
     return (

@@ -55,6 +55,16 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -262,10 +272,7 @@ export function BookingDataTable({
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  }),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {})
-  )
+  })
 
   const table = useTable({
     features,
@@ -283,8 +290,6 @@ export function BookingDataTable({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
   })
-
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -324,10 +329,69 @@ export function BookingDataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm">
-            <IconPlus />
-            <span className="hidden lg:inline">Add Booking</span>
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <IconPlus />
+                <span className="hidden lg:inline">Add Booking</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Booking</DialogTitle>
+                <DialogDescription>
+                  Enter the details for the new booking here. Click save when you're done.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="new-customer">Customer Name</Label>
+                  <Input id="new-customer" placeholder="John Doe" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-type">Type</Label>
+                    <Select>
+                      <SelectTrigger id="new-type" className="w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Villa">Villa</SelectItem>
+                        <SelectItem value="Private Pool">Private Pool</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-status">Status</Label>
+                    <Select>
+                      <SelectTrigger id="new-status" className="w-full">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Confirmed">Confirmed</SelectItem>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="new-amount">Amount</Label>
+                  <Input id="new-amount" placeholder="Rp 2.500.000" />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="new-date">Date</Label>
+                  <Input id="new-date" placeholder="01 Sep - 03 Sep 2026" />
+                </div>
+                <DialogFooter className="mt-4">
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="button" onClick={() => toast.success("Booking saved!")}>Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       
@@ -341,7 +405,7 @@ export function BookingDataTable({
                       return (
                         <TableHead key={header.id} colSpan={header.colSpan}>
                           {header.isPlaceholder ? null : (
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            flexRender(header.column.columnDef.header, header.getContext())
                           )}
                         </TableHead>
                       )
@@ -351,7 +415,7 @@ export function BookingDataTable({
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
                 {table.getRowModel().rows?.length ? (
-                  {table.getRowModel().rows.map((row) => (
+                  table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
@@ -359,7 +423,7 @@ export function BookingDataTable({
                         </TableCell>
                       ))}
                     </TableRow>
-                  ))}
+                  ))
                 ) : (
                   <TableRow>
                     <TableCell
@@ -374,10 +438,6 @@ export function BookingDataTable({
             </Table>
         </div>
         <div className="flex items-center justify-between">
-          <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">

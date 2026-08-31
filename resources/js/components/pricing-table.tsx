@@ -47,6 +47,16 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -194,10 +204,7 @@ export function PricingDataTable({
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  }),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {})
-  )
+  })
 
   const table = useTable({
     features,
@@ -215,8 +222,6 @@ export function PricingDataTable({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
   })
-
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -256,10 +261,56 @@ export function PricingDataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm">
-            <IconPlus />
-            <span className="hidden lg:inline">Add Price</span>
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <IconPlus />
+                <span className="hidden lg:inline">Add Price</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Price</DialogTitle>
+                <DialogDescription>
+                  Enter the details for the new pricing here. Click save when you're done.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="flex flex-col gap-4 mt-2">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="new-name">Package / Session</Label>
+                  <Input id="new-name" placeholder="Weekday (Senin - Kamis)" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-type">Type / Duration</Label>
+                    <Input id="new-type" placeholder="Regular" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-status">Status</Label>
+                    <Select defaultValue="Active">
+                      <SelectTrigger id="new-status" className="w-full">
+                        <SelectValue placeholder="Select a status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="new-price">Price</Label>
+                  <Input id="new-price" placeholder="Rp 2.500.000" />
+                </div>
+                <DialogFooter className="mt-4">
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="button" onClick={() => toast.success("Pricing saved!")}>Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       
@@ -273,7 +324,7 @@ export function PricingDataTable({
                       return (
                         <TableHead key={header.id} colSpan={header.colSpan}>
                           {header.isPlaceholder ? null : (
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            flexRender(header.column.columnDef.header, header.getContext())
                           )}
                         </TableHead>
                       )
@@ -283,7 +334,7 @@ export function PricingDataTable({
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
                 {table.getRowModel().rows?.length ? (
-                  {table.getRowModel().rows.map((row) => (
+                  table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
@@ -291,7 +342,7 @@ export function PricingDataTable({
                         </TableCell>
                       ))}
                     </TableRow>
-                  ))}
+                  ))
                 ) : (
                   <TableRow>
                     <TableCell
@@ -306,10 +357,6 @@ export function PricingDataTable({
             </Table>
         </div>
         <div className="flex items-center justify-between">
-          <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">

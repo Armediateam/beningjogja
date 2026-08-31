@@ -19,9 +19,7 @@ import {
 } from "@/components/ui/card"
 import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 
-const chartData = [
-  { target: "Revenue", achieved: 45250000, fill: "var(--color-achieved)" },
-]
+const chartData: any[] = [];
 
 const chartConfig = {
   achieved: {
@@ -31,7 +29,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function AnalyticTargetRadial() {
-  const percentage = Math.round((45250000 / 50000000) * 100)
+  const percentage = 0;
 
   return (
     <Card className="flex flex-col">
