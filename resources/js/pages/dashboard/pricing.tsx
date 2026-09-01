@@ -1,13 +1,17 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { dashboard } from '@/routes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PricingDataTable } from '@/components/pricing-table';
 
-const villaPrices: any[] = [];
-
-const poolPrices: any[] = [];
-
 export default function PricingContent() {
+    const { pricings = [] } = usePage<any>().props;
+
+    // Separate prices based on type or just pass all. Let's filter by type.
+    // E.g., 'Villa', 'Private Pool'. If it's 'All Inclusive', we can put it in 'villa' tab or a new tab.
+    // For simplicity, let's put 'Villa' and 'All Inclusive' in the 'villa' tab, and 'Private Pool' in 'private-pool'.
+    const villaPrices = pricings.filter((p: any) => p.type !== 'Private Pool');
+    const poolPrices = pricings.filter((p: any) => p.type === 'Private Pool');
+
     return (
         <>
             <Head title="Pricelist Management" />

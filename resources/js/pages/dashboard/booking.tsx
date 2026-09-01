@@ -3,11 +3,45 @@ import { dashboard } from '@/routes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookingDataTable } from '@/components/booking-table';
 
-const villaData: any[] = [];
+import { useMemo } from 'react';
 
-const poolData: any[] = [];
+export default function BookingContent({ bookings = [] }: { bookings?: any[] }) {
+    
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
+    };
 
-export default function BookingContent() {
+    const villaData = useMemo(() => {
+        return bookings.filter(b => b.type === 'villa').map(b => ({
+            id: b.id,
+            bookingId: b.booking_code || `BNG-OLD-${b.id}`,
+            type: 'Villa',
+            status: ucfirst(b.status),
+            customer: b.customer_name,
+            amount: formatCurrency(b.total_price),
+            date: b.booking_date,
+            paymentProof: b.payment_proof
+        }));
+    }, [bookings]);
+
+    const poolData = useMemo(() => {
+        return bookings.filter(b => b.type === 'pool').map(b => ({
+            id: b.id,
+            bookingId: b.booking_code || `BNG-OLD-${b.id}`,
+            type: 'Private Pool',
+            status: ucfirst(b.status),
+            customer: b.customer_name,
+            amount: formatCurrency(b.total_price),
+            date: b.booking_date,
+            paymentProof: b.payment_proof
+        }));
+    }, [bookings]);
+
+    function ucfirst(str: string) {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
     return (
         <>
             <Head title="Booking List" />

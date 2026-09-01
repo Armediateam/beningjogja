@@ -102,57 +102,63 @@ export const schema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
-  phone: z.string(),
-  totalBookings: z.number(),
-  status: z.string(),
+  phone: z.string().nullable(),
+  message: z.string(),
+  is_read: z.boolean(),
+  created_at: z.string(),
 })
 
 
 const columns = columnHelper.columns([
+  columnHelper.accessor("is_read", {
+    header: "Status",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="px-1.5 text-muted-foreground">
+        {row.original.is_read ? (
+          <span className="text-zinc-600 dark:text-zinc-400">Dibaca</span>
+        ) : (
+          <span className="text-blue-600 dark:text-blue-400 font-bold">Baru</span>
+        )}
+      </Badge>
+    ),
+  }),
+  columnHelper.accessor("created_at", {
+    header: "Tanggal",
+    cell: ({ row }) => (
+      <div className="w-32">
+        <span className="text-muted-foreground">
+          {new Date(row.original.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </span>
+      </div>
+    ),
+  }),
   columnHelper.accessor("name", {
-    header: "Customer Name",
+    header: "Pengirim",
     filterFn: "includesString" as any,
     cell: ({ row }) => {
       return <TableCellViewer item={row.original} />
     },
     enableHiding: false,
   }),
-  columnHelper.accessor("phone", {
-    header: "WhatsApp",
-    cell: ({ row }) => (
-      <div className="w-32">
-        <span className="text-muted-foreground">{row.original.phone}</span>
-      </div>
-    ),
-  }),
   columnHelper.accessor("email", {
-    header: "Email",
+    header: "Kontak",
     cell: ({ row }) => (
-      <div className="w-40 truncate text-muted-foreground">
-        {row.original.email}
-      </div>
-    ),
-  }),
-  columnHelper.accessor("totalBookings", {
-    header: "Bookings",
-    cell: ({ row }) => (
-      <div className="font-medium">
-        {row.original.totalBookings}
-      </div>
-    ),
-    meta: { className: "text-right" }
-  }),
-  columnHelper.accessor("status", {
-    header: "Member Status",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="px-1.5 text-muted-foreground">
-        {row.original.status === "VIP" ? (
-          <IconCircleCheckFilled className="fill-blue-500 dark:fill-blue-400" />
-        ) : (
-          <IconLoader />
+      <div className="w-48 text-muted-foreground flex flex-col gap-1">
+        <a href={`mailto:${row.original.email}`} className="text-blue-600 hover:underline">{row.original.email}</a>
+        {row.original.phone && (
+            <a href={`https://wa.me/${row.original.phone.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline">
+                {row.original.phone}
+            </a>
         )}
-        {row.original.status}
-      </Badge>
+      </div>
+    ),
+  }),
+  columnHelper.accessor("message", {
+    header: "Isi Pesan",
+    cell: ({ row }) => (
+      <div className="text-left pr-4 truncate max-w-[200px]" title={row.original.message}>
+        {row.original.message}
+      </div>
     ),
   }),
   columnHelper.display({
@@ -162,7 +168,7 @@ const columns = columnHelper.columns([
 ])
 
 export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
-  const [isEditOpen, setIsEditOpen] = React.useState(false)
+  const [isViewOpen, setIsViewOpen] = React.useState(false)
 
   return (
     <div className="flex justify-end">
@@ -177,15 +183,25 @@ export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>View / Edit</DropdownMenuItem>
+        <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuItem onSelect={() => setIsViewOpen(true)}>View Details</DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => {
+              router.put(`/dashboard/messages/${item.id}`, { is_read: !item.is_read }, {
+                preserveScroll: true,
+                onSuccess: () => toast.success(item.is_read ? 'Marked as unread' : 'Marked as read')
+              })
+            }}
+          >
+            Mark as {item.is_read ? 'Unread' : 'Read'}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             variant="destructive"
             onClick={() => {
-              if (confirm('Are you sure you want to delete this customer?')) {
-                router.delete(`/dashboard/customer/${item.id}`, {
-                  onSuccess: () => toast.success('Customer deleted successfully.')
+              if (confirm('Are you sure you want to delete this message?')) {
+                router.delete(`/dashboard/messages/${item.id}`, {
+                  onSuccess: () => toast.success('Message deleted successfully.')
                 })
               }
             }}
@@ -195,13 +211,13 @@ export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <TableCellViewer item={item} open={isEditOpen} onOpenChange={setIsEditOpen} />
+      <TableCellViewer item={item} open={isViewOpen} onOpenChange={setIsViewOpen} />
     </div>
   )
 }
 
 
-export function CustomerDataTable({
+export function MessageDataTable({
   data: initialData,
   tabsList,
 }: {
@@ -247,7 +263,7 @@ export function CustomerDataTable({
         <div className="flex items-center gap-4 w-full sm:w-auto">
           {tabsList && tabsList}
           <Input
-            placeholder="Search customer..."
+            placeholder="Search messages..."
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
@@ -289,7 +305,63 @@ export function CustomerDataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <AddCustomerDialog />
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <IconPlus />
+                <span className="hidden lg:inline">Add Customer</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Customer</DialogTitle>
+                <DialogDescription>
+                  Enter the details for the new customer here. Click save when you're done.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="flex flex-col gap-4 mt-2">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="new-name">Full Name</Label>
+                  <Input id="new-name" placeholder="John Doe" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-phone">WhatsApp / Phone</Label>
+                    <Input id="new-phone" placeholder="+62 812-3456-7890" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-email">Email</Label>
+                    <Input id="new-email" type="email" placeholder="john@example.com" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-totalBookings">Total Bookings</Label>
+                    <Input id="new-totalBookings" type="number" defaultValue="0" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="new-status">Member Status</Label>
+                    <Select defaultValue="New">
+                      <SelectTrigger id="new-status" className="w-full">
+                        <SelectValue placeholder="Select a status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="VIP">VIP</SelectItem>
+                        <SelectItem value="Regular">Regular</SelectItem>
+                        <SelectItem value="New">New</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter className="mt-4">
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="button" onClick={() => toast.success("Customer saved!")}>Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       
@@ -301,7 +373,7 @@ export function CustomerDataTable({
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id} colSpan={header.colSpan} className={(header.column.columnDef.meta as any)?.className}>
+                        <TableHead key={header.id} colSpan={header.colSpan}>
                           {header.isPlaceholder ? null : (
                             flexRender(header.column.columnDef.header, header.getContext())
                           )}
@@ -316,7 +388,7 @@ export function CustomerDataTable({
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className={(cell.column.columnDef.meta as any)?.className}>
+                        <TableCell key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
@@ -419,37 +491,21 @@ function TableCellViewer({ item, children, asChild, open, onOpenChange }: { item
   const isOpen = isControlled ? open : internalOpen
   const setIsOpen = isControlled ? onOpenChange : setInternalOpen
 
-  const [name, setName] = React.useState(item.name)
-  const [email, setEmail] = React.useState(item.email || "")
-  const [phone, setPhone] = React.useState(item.phone || "")
-  const [status, setStatus] = React.useState(item.status)
-
   React.useEffect(() => {
-    if (isOpen) {
-      setName(item.name)
-      setEmail(item.email || "")
-      setPhone(item.phone || "")
-      setStatus(item.status)
+    // If opened and not read, mark as read
+    if (isOpen && !item.is_read) {
+      router.put(`/dashboard/messages/${item.id}`, { is_read: true }, {
+        preserveScroll: true,
+      })
     }
-  }, [isOpen, item])
-
-  const handleSave = () => {
-    router.put(`/dashboard/customer/${item.id}`, {
-      name, email, phone, status
-    }, {
-      onSuccess: () => {
-        toast.success("Profile updated successfully")
-        setIsOpen(false)
-      }
-    })
-  }
+  }, [isOpen, item.is_read, item.id])
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen} direction={isMobile ? "bottom" : "right"}>
       {!isControlled && (
         <DrawerTrigger asChild>
           {children ? children : (
-            <Button variant="link" className="w-fit px-0 text-left text-foreground font-semibold">
+            <Button variant="link" className={`w-fit px-0 text-left ${item.is_read ? "text-muted-foreground" : "text-foreground font-semibold"}`}>
               {item.name}
             </Button>
           )}
@@ -457,134 +513,45 @@ function TableCellViewer({ item, children, asChild, open, onOpenChange }: { item
       )}
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.name}'s Profile</DrawerTitle>
+          <DrawerTitle>Message Details</DrawerTitle>
           <DrawerDescription>
-            Update customer information
+            Pesan dari {item.name}
           </DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm mt-4">
-          <form className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" value={name} onChange={e => setName(e.target.value)} />
+        <div className="grid gap-6 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium text-muted-foreground">Nama</span>
+              <span className="font-medium text-foreground">{item.name}</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="phone">WhatsApp / Phone</Label>
-                <Input id="phone" value={phone} onChange={e => setPhone(e.target.value)} />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-              </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium text-muted-foreground">Status</span>
+              <span className="font-medium text-foreground">{item.is_read ? 'Dibaca' : 'Baru'}</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="totalBookings">Total Bookings</Label>
-                <Input id="totalBookings" type="number" defaultValue={item.totalBookings} disabled />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Member Status</Label>
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="VIP">VIP</SelectItem>
-                    <SelectItem value="Regular">Regular</SelectItem>
-                    <SelectItem value="New">New</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </form>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-muted-foreground">Email</span>
+            <span className="text-foreground">{item.email}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-muted-foreground">Phone</span>
+            <span className="text-foreground">{item.phone || '-'}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-muted-foreground">Tanggal</span>
+            <span className="text-foreground">{new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-muted-foreground">Isi Pesan</span>
+            <p className="text-foreground whitespace-pre-wrap">{item.message}</p>
+          </div>
         </div>
-        <DrawerFooter>
-          <Button onClick={handleSave}>Save Profile</Button>
+        <DrawerFooter className="pt-4 flex-row justify-end gap-2">
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">Close</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  )
-}
-
-function AddCustomerDialog() {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [name, setName] = React.useState("")
-  const [phone, setPhone] = React.useState("")
-  const [email, setEmail] = React.useState("")
-  const [status, setStatus] = React.useState("New")
-
-  const handleSave = () => {
-    if (!name) return toast.error("Name is required")
-
-    router.post('/dashboard/customer', {
-      name, phone, email, status
-    }, {
-      onSuccess: () => {
-        toast.success("Customer added successfully")
-        setIsOpen(false)
-        setName("")
-        setPhone("")
-        setEmail("")
-        setStatus("New")
-      }
-    })
-  }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <IconPlus />
-          <span className="hidden lg:inline">Add Customer</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Add Customer</DialogTitle>
-          <DialogDescription>
-            Enter the details for the new customer here. Click save when you're done.
-          </DialogDescription>
-        </DialogHeader>
-        <form className="flex flex-col gap-4 mt-2">
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="new-name">Full Name</Label>
-            <Input id="new-name" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="new-phone">WhatsApp / Phone</Label>
-              <Input id="new-phone" placeholder="+62 812..." value={phone} onChange={e => setPhone(e.target.value)} />
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="new-email">Email</Label>
-              <Input id="new-email" type="email" placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="new-status">Member Status</Label>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="new-status" className="w-full">
-                <SelectValue placeholder="Select a status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="VIP">VIP</SelectItem>
-                <SelectItem value="Regular">Regular</SelectItem>
-                <SelectItem value="New">New</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter className="mt-4">
-            <DialogClose asChild>
-              <Button variant="outline" type="button">Cancel</Button>
-            </DialogClose>
-            <Button type="button" onClick={handleSave}>Save</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   )
 }

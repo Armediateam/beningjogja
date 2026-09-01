@@ -24,7 +24,7 @@ export function HeroSection() {
 
                 {/* Headline */}
                 <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white mb-6 max-w-4xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150">
-                    Kemewahan dan Ketenangan di <span className="text-amber-400 drop-shadow-lg">Jantung Yogyakarta</span>
+                    Kemewahan dan Ketenangan di <span className="text-blue-400 drop-shadow-lg">Jantung Yogyakarta</span>
                 </h1>
                 
                 {/* Sub-headline */}
@@ -34,10 +34,12 @@ export function HeroSection() {
 
                 {/* Call to Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-10 duration-700 delay-500">
-                    <Button size="lg" className="h-12 px-8 text-base rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all">
-                        Pesan Sekarang
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
+                    <a href="/reservasi">
+                        <Button size="lg" className="h-12 px-8 text-base rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                            Pesan Sekarang
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                    </a>
                     <Button size="lg" variant="outline" className="h-12 px-8 text-base rounded-full bg-white/10 text-white border-white/30 hover:bg-white/20 backdrop-blur-sm transition-all">
                         Pelajari Lebih Lanjut
                     </Button>

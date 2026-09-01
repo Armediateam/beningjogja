@@ -30,6 +30,7 @@ import {
   type Row,
   type SortingState,
 } from "@tanstack/react-table"
+import { router } from "@inertiajs/react"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -110,6 +111,7 @@ export const schema = z.object({
 const columns = columnHelper.columns([
   columnHelper.accessor("name", {
     header: "Full Name",
+    filterFn: "includesString" as any,
     cell: ({ row }) => {
       return <TableCellViewer item={row.original} />
     },
@@ -145,35 +147,17 @@ const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor("lastLogin", {
-    header: () => <div className="w-full text-right">Last Login</div>,
+    header: "Last Login",
     cell: ({ row }) => (
-      <div className="text-right text-muted-foreground pr-4">
+      <div className="text-muted-foreground">
         {row.original.lastLogin}
       </div>
     ),
+    meta: { className: "text-right" }
   }),
   columnHelper.display({
     id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit User</DropdownMenuItem>
-          <DropdownMenuItem>Reset Password</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Suspend User</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => <ActionMenu item={row.original} />
   }),
 ])
 
@@ -197,6 +181,10 @@ export function UserDataTable({
     pageSize: 10,
   })
 
+  React.useEffect(() => {
+    setData(initialData)
+  }, [initialData])
+
   const table = useTable({
     features,
     data,
@@ -216,8 +204,18 @@ export function UserDataTable({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        {tabsList || <div />}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          {tabsList && tabsList}
+          <Input
+            placeholder="Search user..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm h-9"
+          />
+        </div>
         <div className="flex items-center gap-2 ml-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -252,65 +250,12 @@ export function UserDataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <IconPlus />
-                <span className="hidden lg:inline">Add User</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add User</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new user here. Click save when you're done.
-                </DialogDescription>
-              </DialogHeader>
-              <form className="flex flex-col gap-4 mt-2">
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="new-name">Full Name</Label>
-                  <Input id="new-name" placeholder="John Doe" />
-                </div>
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="new-email">Email</Label>
-                  <Input id="new-email" type="email" placeholder="john@example.com" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="new-role">Role</Label>
-                    <Select defaultValue="Staff">
-                      <SelectTrigger id="new-role" className="w-full">
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                        <SelectItem value="Manager">Manager</SelectItem>
-                        <SelectItem value="Staff">Staff</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="new-status">Status</Label>
-                    <Select defaultValue="Active">
-                      <SelectTrigger id="new-status" className="w-full">
-                        <SelectValue placeholder="Select a status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <DialogFooter className="mt-4">
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <Button type="button" onClick={() => toast.success("User saved!")}>Save</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <AddUserDialog>
+            <Button variant="outline" size="sm">
+              <IconPlus />
+              <span className="hidden lg:inline">Add User</span>
+            </Button>
+          </AddUserDialog>
         </div>
       </div>
       
@@ -322,7 +267,7 @@ export function UserDataTable({
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id} colSpan={header.colSpan}>
+                        <TableHead key={header.id} colSpan={header.colSpan} className={(header.column.columnDef.meta as any)?.className}>
                           {header.isPlaceholder ? null : (
                             flexRender(header.column.columnDef.header, header.getContext())
                           )}
@@ -337,7 +282,7 @@ export function UserDataTable({
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className={(cell.column.columnDef.meta as any)?.className}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
@@ -432,16 +377,41 @@ export function UserDataTable({
   )
 }
 
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({ item, children, open, onOpenChange }: { item: z.infer<typeof schema>, children?: React.ReactNode, open?: boolean, onOpenChange?: (open: boolean) => void }) {
   const isMobile = useIsMobile()
+  const [internalOpen, setInternalOpen] = React.useState(false)
+  
+  const isControlled = open !== undefined && onOpenChange !== undefined
+  const isOpen = isControlled ? open : internalOpen
+  const setIsOpen = isControlled ? onOpenChange : setInternalOpen
+
+  const [name, setName] = React.useState(item.name)
+  const [email, setEmail] = React.useState(item.email)
+  const [role, setRole] = React.useState(item.role)
+  const [status, setStatus] = React.useState(item.status)
+
+  const handleSave = () => {
+    router.put(`/dashboard/user/${item.id}`, {
+      name, email, role, status
+    }, {
+      onSuccess: () => {
+        toast.success("User updated successfully")
+        setIsOpen(false)
+      }
+    })
+  }
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button variant="link" className="w-fit px-0 text-left text-foreground font-semibold">
-          {item.name}
-        </Button>
-      </DrawerTrigger>
+    <Drawer open={isOpen} onOpenChange={setIsOpen} direction={isMobile ? "bottom" : "right"}>
+      {!isControlled && (
+        <DrawerTrigger asChild>
+          {children || (
+            <Button variant="link" className="w-fit px-0 text-left text-foreground font-semibold">
+              {item.name}
+            </Button>
+          )}
+        </DrawerTrigger>
+      )}
       <DrawerContent>
         <DrawerHeader className="gap-1">
           <DrawerTitle>{item.name}'s Account</DrawerTitle>
@@ -450,19 +420,19 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm mt-4">
-          <form className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
             <div className="flex flex-col gap-3">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue={item.name} />
+              <Input id="name" value={name} onChange={e => setName(e.target.value)} />
             </div>
             <div className="flex flex-col gap-3">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue={item.email} />
+              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
                 <Label htmlFor="role">Role</Label>
-                <Select defaultValue={item.role}>
+                <Select value={role} onValueChange={setRole}>
                   <SelectTrigger id="role" className="w-full">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
@@ -475,7 +445,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               </div>
               <div className="flex flex-col gap-3">
                 <Label htmlFor="status">Status</Label>
-                <Select defaultValue={item.status}>
+                <Select value={status} onValueChange={setStatus}>
                   <SelectTrigger id="status" className="w-full">
                     <SelectValue placeholder="Select a status" />
                   </SelectTrigger>
@@ -489,12 +459,222 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           </form>
         </div>
         <DrawerFooter>
-          <Button>Save User</Button>
+          <Button onClick={handleSave}>Save User</Button>
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  )
+}
+
+function AddUserDialog({ children }: { children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [name, setName] = React.useState("")
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = React.useState("")
+  const [role, setRole] = React.useState("Staff")
+  const [status, setStatus] = React.useState("Active")
+
+  const handleSave = () => {
+    if (password !== passwordConfirmation) {
+      toast.error("Passwords do not match!")
+      return
+    }
+    
+    router.post(`/dashboard/user`, {
+      name,
+      email,
+      password,
+      password_confirmation: passwordConfirmation,
+      role,
+      status,
+    }, {
+      onSuccess: () => {
+        toast.success("User added successfully")
+        setIsOpen(false)
+        setName("")
+        setEmail("")
+        setPassword("")
+        setPasswordConfirmation("")
+        setRole("Staff")
+        setStatus("Active")
+      },
+      onError: (errors) => {
+        if (errors.email) toast.error(errors.email)
+        else if (errors.password) toast.error(errors.password)
+        else toast.error("An error occurred")
+      }
+    })
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        {children}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add User</DialogTitle>
+          <DialogDescription>
+            Enter the details for the new user here. Click save when you`re done.
+          </DialogDescription>
+        </DialogHeader>
+        <form className="flex flex-col gap-4 mt-2" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="new-name">Full Name</Label>
+            <Input id="new-name" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} required />
+          </div>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="new-email">Email</Label>
+            <Input id="new-email" type="email" placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="new-password">Password</Label>
+              <Input id="new-password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="new-password-confirm">Confirm</Label>
+              <Input id="new-password-confirm" type="password" value={passwordConfirmation} onChange={e => setPasswordConfirmation(e.target.value)} required />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="new-role">Role</Label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger id="new-role" className="w-full">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                  <SelectItem value="Manager">Manager</SelectItem>
+                  <SelectItem value="Staff">Staff</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="new-status">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger id="new-status" className="w-full">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function ResetPasswordDialog({ item, open, onOpenChange }: { item: z.infer<typeof schema>, open: boolean, onOpenChange: (open: boolean) => void }) {
+  const [password, setPassword] = React.useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = React.useState("")
+
+  const handleReset = () => {
+    if (password !== passwordConfirmation) {
+      toast.error("Passwords do not match!")
+      return
+    }
+    
+    router.put(`/dashboard/user/${item.id}/password`, {
+      password,
+      password_confirmation: passwordConfirmation
+    }, {
+      onSuccess: () => {
+        toast.success("Password reset successfully")
+        onOpenChange(false)
+        setPassword("")
+        setPasswordConfirmation("")
+      },
+      onError: (errors) => {
+        if (errors.password) toast.error(errors.password)
+        else toast.error("An error occurred")
+      }
+    })
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Reset Password</DialogTitle>
+          <DialogDescription>
+            Enter a new password for {item.name}.
+          </DialogDescription>
+        </DialogHeader>
+        <form className="flex flex-col gap-4 mt-2" onSubmit={(e) => { e.preventDefault(); handleReset(); }}>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="reset-password">New Password</Label>
+            <Input id="reset-password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+          </div>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="reset-password-confirm">Confirm Password</Label>
+            <Input id="reset-password-confirm" type="password" value={passwordConfirmation} onChange={e => setPasswordConfirmation(e.target.value)} required />
+          </div>
+          <DialogFooter className="mt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Reset Password</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
+  const [isEditOpen, setIsEditOpen] = React.useState(false)
+  const [isResetOpen, setIsResetOpen] = React.useState(false)
+
+  return (
+    <div className="flex justify-end">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+            size="icon"
+          >
+            <IconDotsVertical />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>Edit User</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setIsResetOpen(true)}>Reset Password</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem 
+            variant="destructive"
+            onClick={() => {
+              if (confirm('Are you sure you want to delete this user?')) {
+                router.delete(`/dashboard/user/${item.id}`, {
+                  onSuccess: () => toast.success('User deleted successfully.')
+                })
+              }
+            }}
+          >
+            Delete User
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <TableCellViewer item={item} open={isEditOpen} onOpenChange={setIsEditOpen} />
+      <ResetPasswordDialog item={item} open={isResetOpen} onOpenChange={setIsResetOpen} />
+    </div>
   )
 }

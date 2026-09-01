@@ -2,10 +2,7 @@ import { Head } from '@inertiajs/react';
 import { dashboard } from '@/routes';
 import { ChartAreaInteractive } from '@/components/chart-area-interactive';
 import { AnalyticRevenueBar } from '@/components/analytic-revenue-bar';
-import { AnalyticBookingsPie } from '@/components/analytic-bookings-pie';
 import { AnalyticTargetRadial } from '@/components/analytic-target-radial';
-import { AnalyticBookingSource } from '@/components/analytic-booking-source';
-import { AnalyticSatisfactionRadar } from '@/components/analytic-satisfaction-radar';
 
 export default function AnalyticContent() {
     return (
@@ -32,12 +29,7 @@ export default function AnalyticContent() {
                             </div>
                         </div>
 
-                        {/* Row 2: Sumber Booking, Kepuasan Pelanggan, Distribusi Layanan */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                            <AnalyticBookingSource />
-                            <AnalyticSatisfactionRadar />
-                            <AnalyticBookingsPie />
-                        </div>
+
 
                         {/* Row 3: Pendapatan Bulanan */}
                         <div className="grid grid-cols-1 gap-4 mt-2">

@@ -182,14 +182,12 @@ export function ChartAreaInteractive({ chartData }: { chartData?: any[] }) {
               type="natural"
               fill="url(#fillPool)"
               stroke="var(--color-pool)"
-              stackId="a"
             />
             <Area
               dataKey="villa"
               type="natural"
               fill="url(#fillVilla)"
               stroke="var(--color-villa)"
-              stackId="a"
             />
           </AreaChart>
         </ChartContainer>

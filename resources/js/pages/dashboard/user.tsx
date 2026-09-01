@@ -2,9 +2,7 @@ import { Head } from '@inertiajs/react';
 import { dashboard } from '@/routes';
 import { UserDataTable } from '@/components/user-table';
 
-const userData: any[] = [];
-
-export default function UserContent() {
+export default function UserContent({ users }: { users: any[] }) {
     return (
         <>
             <Head title="User Management" />
@@ -20,7 +18,7 @@ export default function UserContent() {
                         </div>
 
                         <div className="mt-4">
-                            <UserDataTable data={userData} />
+                            <UserDataTable data={users} />
                         </div>
 
                     </div>

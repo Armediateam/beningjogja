@@ -26,26 +26,26 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
     }, []);
 
     const navLinks = [
-        { name: 'Beranda', href: '#' },
-        { name: 'Fasilitas', href: '#' },
-        { name: 'Tentang Kami', href: '#' },
-        { name: 'Hubungi Kami', href: '#' },
+        { name: 'Beranda', href: '/' },
+        { name: 'Fasilitas', href: '/fasilitas' },
+        { name: 'Tentang Kami', href: '/tentang-kami' },
+        { name: 'Hubungi Kami', href: '/hubungi-kami' },
     ];
 
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
                 isScrolled
-                    ? 'bg-white/70 backdrop-blur-md shadow-sm border-b border-border/50 dark:bg-background/70'
+                    ? 'bg-white/70 backdrop-blur-md shadow-sm dark:bg-background/70'
                     : 'bg-transparent'
             }`}
         >
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${!isScrolled ? 'dark' : ''}`}>
                 <div className="flex h-16 md:h-20 items-center justify-between">
                     {/* Logo */}
                     <div className="flex items-center gap-2">
                         <AppLogoIcon className="h-8 w-8" />
-                        <span className="text-xl font-bold tracking-tight text-foreground">
+                        <span className={`text-xl font-bold tracking-tight ${!isScrolled ? 'text-white' : 'text-foreground'}`}>
                             Bening Jogja
                         </span>
                     </div>
@@ -57,7 +57,11 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                                 <a
                                     key={link.name}
                                     href={link.href}
-                                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                                    className={`text-sm font-medium transition-colors ${
+                                        !isScrolled 
+                                            ? 'text-gray-200 hover:text-white' 
+                                            : 'text-muted-foreground hover:text-primary'
+                                    }`}
                                 >
                                     {link.name}
                                 </a>
@@ -70,19 +74,25 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                         <div className="hidden md:flex items-center gap-4">
                             {auth.user ? (
                                 <Link href={dashboard()}>
-                                    <Button className="rounded-full px-6 shadow-sm hover:shadow-md transition-all">
+                                    <Button className={`rounded-full px-6 shadow-sm hover:shadow-md transition-all ${
+                                        !isScrolled ? 'bg-white text-black hover:bg-gray-100' : ''
+                                    }`}>
                                         Dashboard
                                     </Button>
                                 </Link>
                             ) : (
                                 <>
                                     <Link href={login()}>
-                                        <Button variant="ghost" className="rounded-full px-6 font-medium">
+                                        <Button variant="ghost" className={`rounded-full px-6 font-medium ${
+                                            !isScrolled ? 'text-white hover:bg-white/10 hover:text-white' : ''
+                                        }`}>
                                             Log in
                                         </Button>
                                     </Link>
                                     <Link href={register()}>
-                                        <Button className="rounded-full px-6 shadow-sm hover:shadow-md transition-all">
+                                        <Button className={`rounded-full px-6 shadow-sm hover:shadow-md transition-all ${
+                                            !isScrolled ? 'bg-white text-black hover:bg-gray-100' : ''
+                                        }`}>
                                             Daftar
                                         </Button>
                                     </Link>
@@ -98,7 +108,7 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="text-foreground"
+                                className={!isScrolled ? 'text-white hover:bg-white/10 hover:text-white' : 'text-foreground'}
                             >
                                 {mobileMenuOpen ? <IconX /> : <IconMenu2 />}
                             </Button>

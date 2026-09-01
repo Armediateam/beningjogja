@@ -26,17 +26,24 @@ class DashboardController extends Controller
             ->get();
 
         $chartData = [];
-        $grouped = $bookings->groupBy('booking_date');
+        $startDate = Carbon::now()->subDays(30);
+        $endDate = Carbon::now()->addDays(30);
         
-        foreach ($grouped as $date => $dayBookings) {
-            $villaCount = $dayBookings->where('type', 'villa')->first()->total ?? 0;
-            $poolCount = $dayBookings->where('type', 'pool')->first()->total ?? 0;
+        $currentDate = $startDate->copy();
+        while ($currentDate->lte($endDate)) {
+            $dateStr = $currentDate->toDateString();
+            $dayBookings = $bookings->where('booking_date', $dateStr);
+            
+            $villaCount = $dayBookings->firstWhere('type', 'villa')?->total ?? 0;
+            $poolCount = $dayBookings->firstWhere('type', 'pool')?->total ?? 0;
             
             $chartData[] = [
-                'date' => $date,
-                'villa' => $villaCount,
-                'pool' => $poolCount,
+                'date' => $dateStr,
+                'villa' => (int) $villaCount,
+                'pool' => (int) $poolCount,
             ];
+            
+            $currentDate->addDay();
         }
 
         return Inertia::render('dashboard', [

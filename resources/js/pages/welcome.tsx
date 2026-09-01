@@ -6,8 +6,12 @@ import { LandingFooter } from '@/components/landing-footer';
 import { HeroSection } from '@/components/hero-section';
 import { FeaturesSection } from '@/components/features-section';
 import { VillaCatalogSection } from '@/components/villa-catalog-section';
+import { AboutSection } from '@/components/about-section';
+import { GallerySection } from '@/components/gallery-section';
+import { TestimonialSection } from '@/components/testimonial-section';
+import { CtaSection } from '@/components/cta-section';
 
-export default function Welcome() {
+export default function Welcome({ pricings = [] }: { pricings?: any[] }) {
     const { auth } = usePage<any>().props;
 
     return (
@@ -17,7 +21,11 @@ export default function Welcome() {
                 <LandingHeader auth={auth} />
                 <HeroSection />
                 <FeaturesSection />
-                <VillaCatalogSection />
+                <VillaCatalogSection pricings={pricings} />
+                <AboutSection />
+                <GallerySection />
+                <TestimonialSection />
+                <CtaSection />
                 <LandingFooter />
             </div>
         </>

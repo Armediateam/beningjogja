@@ -13,6 +13,7 @@ import {
   IconLoader,
   IconPlus,
   IconTrendingUp,
+  IconCalendar,
 } from "@tabler/icons-react"
 import {
   columnFilteringFeature,
@@ -34,10 +35,13 @@ import {
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { toast } from "sonner"
 import { z } from "zod"
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { router } from '@inertiajs/react'
 import {
   ChartContainer,
   ChartTooltip,
@@ -58,12 +62,37 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -114,6 +143,7 @@ export const schema = z.object({
   customer: z.string(),
   amount: z.string(),
   date: z.string(),
+  paymentProof: z.string().nullable().optional(),
 })
 
 // Create a separate component for the drag handle
@@ -150,7 +180,8 @@ const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor("customer", {
-    header: () => <div className="w-full text-right">Customer</div>,
+    header: "Customer",
+    filterFn: "includesString" as any,
     cell: ({ row }) => (
       <form
         onSubmit={(e) => {
@@ -166,7 +197,7 @@ const columns = columnHelper.columns([
           Customer
         </Label>
         <Input
-          className="h-8 w-24 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
+          className="h-8 w-32 border-transparent bg-transparent text-left shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
           defaultValue={row.original.customer}
           id={`${row.original.id}-customer`}
         />
@@ -174,9 +205,10 @@ const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor("amount", {
-    header: () => <div className="w-full text-right">Amount</div>,
+    header: "Amount",
     cell: ({ row }) => (
-      <form
+      <div className="flex justify-end">
+        <form
         onSubmit={(e) => {
           e.preventDefault()
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
@@ -192,10 +224,11 @@ const columns = columnHelper.columns([
         <Input
           className="h-8 w-24 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
           defaultValue={row.original.amount}
-          id={`${row.original.id}-amount`}
-        />
-      </form>
+          />
+        </form>
+      </div>
     ),
+    meta: { className: "text-right" }
   }),
   columnHelper.accessor("date", {
     header: "Date",
@@ -230,7 +263,29 @@ const columns = columnHelper.columns([
   }),
   columnHelper.display({
     id: "actions",
-    cell: () => (
+    cell: ({ row }) => <ActionCell row={row} />,
+  }),
+])
+
+function ActionCell({ row }: { row: any }) {
+  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [newDate, setNewDate] = React.useState<Date | undefined>(row.original.date ? new Date(row.original.date) : undefined);
+
+  const handleReschedule = () => {
+    if (!newDate) return;
+    router.put(`/dashboard/booking/${row.original.id}/reschedule`, { booking_date: format(newDate, "yyyy-MM-dd") }, {
+      onSuccess: () => {
+        setSheetOpen(false);
+        toast.success("Berhasil mengubah jadwal");
+      },
+      onError: (errors) => {
+        toast.error(errors.booking_date || "Gagal mengubah jadwal");
+      }
+    });
+  };
+
+  return (
+    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -243,16 +298,78 @@ const columns = columnHelper.columns([
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Approve</DropdownMenuItem>
-          <DropdownMenuItem>Reject</DropdownMenuItem>
+          <TableCellViewer item={row.original} trigger={
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>View Details</DropdownMenuItem>
+          } />
+          <SheetTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Reschedule</DropdownMenuItem>
+          </SheetTrigger>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem variant="destructive" onSelect={(e) => e.preventDefault()}>Delete</DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Yakin ingin menghapus?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tindakan ini tidak dapat dibatalkan. Pesanan {row.original.bookingId} akan dihapus secara permanen.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={() => {
+                  router.delete(`/dashboard/booking/${row.original.id}`, {
+                    onSuccess: () => toast.success("Pesanan berhasil dihapus"),
+                    onError: () => toast.error("Gagal menghapus pesanan")
+                  });
+                }}>Hapus</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </DropdownMenuContent>
       </DropdownMenu>
-    ),
-  }),
-])
+
+      <SheetContent className="p-6 sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>Reschedule Pesanan</SheetTitle>
+          <SheetDescription>
+            Tentukan tanggal baru untuk pesanan {row.original.bookingId}.
+          </SheetDescription>
+        </SheetHeader>
+        <div className="grid gap-4 py-6">
+          <div className="grid gap-2">
+            <Label>Tanggal Baru</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !newDate && "text-muted-foreground"
+                  )}
+                >
+                  <IconCalendar className="mr-2 h-4 w-4" />
+                  {newDate ? format(newDate, "PPP") : <span>Pilih tanggal baru</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={newDate}
+                  onSelect={setNewDate}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <Button onClick={handleReschedule} className="w-full">
+            Simpan Jadwal Baru
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
 
 
 export function BookingDataTable({
@@ -263,6 +380,10 @@ export function BookingDataTable({
   tabsList?: React.ReactNode
 }) {
   const [data, setData] = React.useState(() => initialData)
+  
+  React.useEffect(() => {
+    setData(initialData)
+  }, [initialData])
   const [columnVisibility, setColumnVisibility] =
     React.useState<ColumnVisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -293,8 +414,18 @@ export function BookingDataTable({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        {tabsList || <div />}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          {tabsList && tabsList}
+          <Input
+            placeholder="Search by customer..."
+            value={(table.getColumn("customer")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("customer")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm h-9"
+          />
+        </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -329,69 +460,7 @@ export function BookingDataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <IconPlus />
-                <span className="hidden lg:inline">Add Booking</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Booking</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new booking here. Click save when you're done.
-                </DialogDescription>
-              </DialogHeader>
-              <form className="flex flex-col gap-4">
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="new-customer">Customer Name</Label>
-                  <Input id="new-customer" placeholder="John Doe" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="new-type">Type</Label>
-                    <Select>
-                      <SelectTrigger id="new-type" className="w-full">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Villa">Villa</SelectItem>
-                        <SelectItem value="Private Pool">Private Pool</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="new-status">Status</Label>
-                    <Select>
-                      <SelectTrigger id="new-status" className="w-full">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Confirmed">Confirmed</SelectItem>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="new-amount">Amount</Label>
-                  <Input id="new-amount" placeholder="Rp 2.500.000" />
-                </div>
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="new-date">Date</Label>
-                  <Input id="new-date" placeholder="01 Sep - 03 Sep 2026" />
-                </div>
-                <DialogFooter className="mt-4">
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <Button type="button" onClick={() => toast.success("Booking saved!")}>Save</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <AddBookingDialog />
         </div>
       </div>
       
@@ -403,7 +472,7 @@ export function BookingDataTable({
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id} colSpan={header.colSpan}>
+                        <TableHead key={header.id} colSpan={header.colSpan} className={(header.column.columnDef.meta as any)?.className}>
                           {header.isPlaceholder ? null : (
                             flexRender(header.column.columnDef.header, header.getContext())
                           )}
@@ -418,7 +487,7 @@ export function BookingDataTable({
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className={(cell.column.columnDef.meta as any)?.className}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
@@ -513,99 +582,48 @@ export function BookingDataTable({
   )
 }
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig
-
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({ item, trigger }: { item: z.infer<typeof schema>, trigger?: React.ReactNode }) {
   const isMobile = useIsMobile()
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [localStatus, setLocalStatus] = React.useState(item.status)
+
+  // Reset local state if item changes
+  React.useEffect(() => {
+    setLocalStatus(item.status)
+  }, [item])
+
+  const handleSave = () => {
+    if (localStatus !== item.status) {
+      router.put(`/dashboard/booking/${item.id}/status`, { status: localStatus.toLowerCase() }, {
+        onSuccess: () => {
+          toast.success("Status berhasil diperbarui")
+          setIsOpen(false)
+        },
+        onError: () => toast.error("Gagal memperbarui status")
+      })
+    } else {
+      setIsOpen(false)
+    }
+  }
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
+    <Drawer open={isOpen} onOpenChange={setIsOpen} direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
-        <Button variant="link" className="w-fit px-0 text-left text-foreground">
-          {item.bookingId}
-        </Button>
+        {trigger || (
+          <Button variant="link" className="w-fit px-0 text-left text-foreground">
+            {item.bookingId}
+          </Button>
+        )}
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
           <DrawerTitle>{item.bookingId} Details</DrawerTitle>
           <DrawerDescription>
-            Showing booking stats for the last 6 months
+            Booking information and payment proof.
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          {!isMobile && (
-            <>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 0,
-                    right: 10,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                    hide
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="var(--color-mobile)"
-                    fillOpacity={0.6}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="var(--color-desktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-              <Separator />
-              <div className="grid gap-2">
-                <div className="flex gap-2 leading-none font-medium">
-                  Trending up by 5.2% this month{" "}
-                  <IconTrendingUp className="size-4" />
-                </div>
-                <div className="text-muted-foreground">
-                  Revenue is increasing.
-                </div>
-              </div>
-              <Separator />
-            </>
-          )}
           <form className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
               <Label htmlFor="bookingId">Booking ID</Label>
@@ -629,8 +647,8 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                 </Select>
               </div>
               <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Status</Label>
-                <Select defaultValue={item.status}>
+                <Label htmlFor="status">Update Status</Label>
+                <Select value={localStatus} onValueChange={(val) => setLocalStatus(val)}>
                   <SelectTrigger id="status" className="w-full">
                     <SelectValue placeholder="Select a status" />
                   </SelectTrigger>
@@ -656,15 +674,140 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <Label htmlFor="date">Date</Label>
               <Input id="date" defaultValue={item.date} />
             </div>
+            
+            {item.paymentProof && (
+              <div className="flex flex-col gap-3 mt-2">
+                <Label>Payment Proof</Label>
+                <a href={`/storage/${item.paymentProof}`} target="_blank" rel="noreferrer" className="w-full">
+                  <Button type="button" variant="outline" className="w-full justify-start text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/30">
+                    <IconLayoutColumns className="w-4 h-4 mr-2" />
+                    View Uploaded Proof
+                  </Button>
+                </a>
+              </div>
+            )}
           </form>
         </div>
         <DrawerFooter>
-          <Button>Save Changes</Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
-          </DrawerClose>
+          <Button onClick={handleSave}>Done</Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  )
+}
+
+function AddBookingDialog() {
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [customer, setCustomer] = React.useState("")
+  const [type, setType] = React.useState("villa")
+  const [status, setStatus] = React.useState("confirmed")
+  const [date, setDate] = React.useState<Date | undefined>(undefined)
+
+  const handleSave = () => {
+    if (!customer || !date) {
+      toast.error("Mohon lengkapi semua data form!")
+      return
+    }
+
+    router.post('/dashboard/booking', {
+      customer_name: customer,
+      type: type,
+      status: status.toLowerCase(),
+      booking_date: format(date, "yyyy-MM-dd")
+    }, {
+      onSuccess: () => {
+        toast.success("Pemesanan berhasil ditambahkan!")
+        setIsOpen(false)
+        setCustomer("")
+        setDate(undefined)
+      },
+      onError: (errors: any) => {
+        toast.error("Gagal menambahkan pemesanan")
+        console.error(errors)
+      }
+    })
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <IconPlus />
+          <span className="hidden lg:inline">Add Booking</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add Booking</DialogTitle>
+          <DialogDescription>
+            Masukkan detail pesanan manual di bawah ini.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-4 py-4">
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="new-customer">Customer Name</Label>
+            <Input id="new-customer" placeholder="John Doe" value={customer} onChange={(e) => setCustomer(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="new-type">Type</Label>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger id="new-type" className="w-full">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="villa">Sewa Villa</SelectItem>
+                  <SelectItem value="pool">Private Pool</SelectItem>
+                  <SelectItem value="full">Paket Lengkap</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="new-status">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger id="new-status" className="w-full">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Label>Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <IconCalendar className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pilih tanggal booking</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button type="button" onClick={handleSave}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
