@@ -23,7 +23,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Pesan Masuk',
+        title: 'Messages',
         href: '/dashboard/messages',
         icon: Mail,
     },

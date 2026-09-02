@@ -164,7 +164,7 @@ function FacilitiesEditor({ facilities, setFacilities }: { facilities: any[], se
 
   return (
     <div className="flex flex-col gap-3">
-      <Label>Fasilitas</Label>
+      <Label>Facilities</Label>
       {facilities.map((f, i) => {
         const item = typeof f === 'string' ? { name: f, icon: 'checklist' } : f
         return (
@@ -190,7 +190,7 @@ function FacilitiesEditor({ facilities, setFacilities }: { facilities: any[], se
             <Input 
               value={item.name} 
               onChange={(e) => updateFacility(i, 'name', e.target.value)} 
-              placeholder="Nama fasilitas..."
+              placeholder="Facility name..."
             />
             <Button variant="ghost" size="icon" type="button" onClick={() => removeFacility(i)} className="flex-shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive">
               <IconTrash className="w-4 h-4" />
@@ -199,7 +199,7 @@ function FacilitiesEditor({ facilities, setFacilities }: { facilities: any[], se
         )
       })}
       <Button type="button" variant="outline" size="sm" onClick={addFacility} className="w-fit mt-1">
-        <IconPlus className="w-4 h-4 mr-2" /> Tambah Fasilitas
+        <IconPlus className="w-4 h-4 mr-2" /> Add Facility
       </Button>
     </div>
   )
@@ -243,8 +243,8 @@ const columns = columnHelper.columns([
               ...row.original,
               price: numericPrice,
             }, {
-              onSuccess: () => toast.success(`Harga ${row.original.name} berhasil diperbarui.`),
-              onError: () => toast.error("Gagal memperbarui harga.")
+              onSuccess: () => toast.success(`Price for ${row.original.name} updated successfully.`),
+              onError: () => toast.error("Failed to update price.")
             })
           }}
         >
@@ -579,7 +579,7 @@ function TableCellViewer({ item, children, open, onOpenChange }: { item: z.infer
                   <SelectContent>
                     <SelectItem value="Villa">Villa</SelectItem>
                     <SelectItem value="Private Pool">Private Pool</SelectItem>
-                    <SelectItem value="All Inclusive">All Inclusive (Paket Lengkap)</SelectItem>
+                    <SelectItem value="All Inclusive">All Inclusive</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -644,7 +644,7 @@ function AddPricingDialog() {
 
   const handleSave = () => {
     if (!name || !type || !price) {
-      toast.error("Mohon lengkapi semua data form!")
+      toast.error("Please complete all form fields!")
       return
     }
 
@@ -698,7 +698,7 @@ function AddPricingDialog() {
         <div className="flex flex-col gap-4 mt-2">
           <div className="flex flex-col gap-3">
             <Label htmlFor="new-name">Package / Session Name</Label>
-            <Input id="new-name" placeholder="Sewa Villa" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input id="new-name" placeholder="Villa Rental" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-3">
@@ -710,7 +710,7 @@ function AddPricingDialog() {
                 <SelectContent>
                   <SelectItem value="Villa">Villa</SelectItem>
                   <SelectItem value="Private Pool">Private Pool</SelectItem>
-                  <SelectItem value="All Inclusive">All Inclusive (Paket Lengkap)</SelectItem>
+                  <SelectItem value="All Inclusive">All Inclusive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -797,7 +797,7 @@ function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
                   variant="destructive" 
                   onClick={() => {
                     router.delete(`/dashboard/pricing/${item.id}`, {
-                      onSuccess: () => toast.success("Harga berhasil dihapus.")
+                      onSuccess: () => toast.success("Pricing deleted successfully.")
                     })
                   }}
                 >

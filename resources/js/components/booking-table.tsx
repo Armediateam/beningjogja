@@ -276,10 +276,10 @@ function ActionCell({ row }: { row: any }) {
     router.put(`/dashboard/booking/${row.original.id}/reschedule`, { booking_date: format(newDate, "yyyy-MM-dd") }, {
       onSuccess: () => {
         setSheetOpen(false);
-        toast.success("Berhasil mengubah jadwal");
+        toast.success("Schedule updated successfully");
       },
       onError: (errors) => {
-        toast.error(errors.booking_date || "Gagal mengubah jadwal");
+        toast.error(errors.booking_date || "Failed to update schedule");
       }
     });
   };
@@ -311,19 +311,19 @@ function ActionCell({ row }: { row: any }) {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Yakin ingin menghapus?</AlertDialogTitle>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tindakan ini tidak dapat dibatalkan. Pesanan {row.original.bookingId} akan dihapus secara permanen.
+                  This action cannot be undone. Booking {row.original.bookingId} will be permanently deleted.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={() => {
                   router.delete(`/dashboard/booking/${row.original.id}`, {
-                    onSuccess: () => toast.success("Pesanan berhasil dihapus"),
-                    onError: () => toast.error("Gagal menghapus pesanan")
+                    onSuccess: () => toast.success("Booking deleted successfully"),
+                    onError: () => toast.error("Failed to delete booking")
                   });
-                }}>Hapus</AlertDialogAction>
+                }}>Delete</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -332,14 +332,14 @@ function ActionCell({ row }: { row: any }) {
 
       <SheetContent className="p-6 sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Reschedule Pesanan</SheetTitle>
+          <SheetTitle>Reschedule Booking</SheetTitle>
           <SheetDescription>
-            Tentukan tanggal baru untuk pesanan {row.original.bookingId}.
+            Set a new date for booking {row.original.bookingId}.
           </SheetDescription>
         </SheetHeader>
         <div className="grid gap-4 py-6">
           <div className="grid gap-2">
-            <Label>Tanggal Baru</Label>
+            <Label>New Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -350,7 +350,7 @@ function ActionCell({ row }: { row: any }) {
                   )}
                 >
                   <IconCalendar className="mr-2 h-4 w-4" />
-                  {newDate ? format(newDate, "PPP") : <span>Pilih tanggal baru</span>}
+                  {newDate ? format(newDate, "PPP") : <span>Select a new date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -363,7 +363,7 @@ function ActionCell({ row }: { row: any }) {
             </Popover>
           </div>
           <Button onClick={handleReschedule} className="w-full">
-            Simpan Jadwal Baru
+            Save New Schedule
           </Button>
         </div>
       </SheetContent>
@@ -597,10 +597,10 @@ function TableCellViewer({ item, trigger }: { item: z.infer<typeof schema>, trig
     if (localStatus !== item.status) {
       router.put(`/dashboard/booking/${item.id}/status`, { status: localStatus.toLowerCase() }, {
         onSuccess: () => {
-          toast.success("Status berhasil diperbarui")
+          toast.success("Status updated successfully")
           setIsOpen(false)
         },
-        onError: () => toast.error("Gagal memperbarui status")
+        onError: () => toast.error("Failed to update status")
       })
     } else {
       setIsOpen(false)
@@ -705,7 +705,7 @@ function AddBookingDialog() {
 
   const handleSave = () => {
     if (!customer || !date) {
-      toast.error("Mohon lengkapi semua data form!")
+      toast.error("Please complete all form fields!")
       return
     }
 
@@ -716,13 +716,13 @@ function AddBookingDialog() {
       booking_date: format(date, "yyyy-MM-dd")
     }, {
       onSuccess: () => {
-        toast.success("Pemesanan berhasil ditambahkan!")
+        toast.success("Booking added successfully!")
         setIsOpen(false)
         setCustomer("")
         setDate(undefined)
       },
       onError: (errors: any) => {
-        toast.error("Gagal menambahkan pemesanan")
+        toast.error("Failed to add booking")
         console.error(errors)
       }
     })
@@ -740,7 +740,7 @@ function AddBookingDialog() {
         <DialogHeader>
           <DialogTitle>Add Booking</DialogTitle>
           <DialogDescription>
-            Masukkan detail pesanan manual di bawah ini.
+            Enter the manual booking details below.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
@@ -756,9 +756,9 @@ function AddBookingDialog() {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="villa">Sewa Villa</SelectItem>
+                  <SelectItem value="villa">Villa Rental</SelectItem>
                   <SelectItem value="pool">Private Pool</SelectItem>
-                  <SelectItem value="full">Paket Lengkap</SelectItem>
+                  <SelectItem value="full">Full Package</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -788,7 +788,7 @@ function AddBookingDialog() {
                   )}
                 >
                   <IconCalendar className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pilih tanggal booking</span>}
+                  {date ? format(date, "PPP") : <span>Select booking date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">

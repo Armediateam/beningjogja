@@ -52,7 +52,7 @@ export default function BookingContent({ bookings = [] }: { bookings?: any[] }) 
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">Booking List</h1>
                             <p className="text-muted-foreground mt-1">
-                                Kelola reservasi Bening Villa dan Bening Private Pool.
+                                Manage reservations for Bening Villa and Bening Private Pool.
                             </p>
                         </div>
 

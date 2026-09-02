@@ -13,9 +13,9 @@ export default function AnalyticContent() {
                     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 p-6">
                         
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight">Analytics & Laporan</h1>
+                            <h1 className="text-2xl font-bold tracking-tight">Analytics & Reports</h1>
                             <p className="text-muted-foreground mt-1">
-                                Pantau performa bisnis, tren reservasi, dan kepuasan pelanggan Bening Villa & Private Pool.
+                                Monitor business performance, reservation trends, and customer satisfaction for Bening Villa & Private Pool.
                             </p>
                         </div>
 

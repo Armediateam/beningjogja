@@ -22,7 +22,7 @@ export default function PricingContent() {
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">Pricelist</h1>
                             <p className="text-muted-foreground mt-1">
-                                Atur harga sewa untuk Bening Villa dan Bening Private Pool.
+                                Manage rental prices for Bening Villa and Bening Private Pool.
                             </p>
                         </div>
 
@@ -33,8 +33,8 @@ export default function PricingContent() {
                                     data={villaPrices} 
                                     tabsList={
                                         <TabsList>
-                                            <TabsTrigger value="villa">Harga Villa</TabsTrigger>
-                                            <TabsTrigger value="private-pool">Harga Private Pool</TabsTrigger>
+                                            <TabsTrigger value="villa">Villa Pricing</TabsTrigger>
+                                            <TabsTrigger value="private-pool">Private Pool Pricing</TabsTrigger>
                                         </TabsList>
                                     }
                                 />
@@ -46,8 +46,8 @@ export default function PricingContent() {
                                     data={poolPrices} 
                                     tabsList={
                                         <TabsList>
-                                            <TabsTrigger value="villa">Harga Villa</TabsTrigger>
-                                            <TabsTrigger value="private-pool">Harga Private Pool</TabsTrigger>
+                                            <TabsTrigger value="villa">Villa Pricing</TabsTrigger>
+                                            <TabsTrigger value="private-pool">Private Pool Pricing</TabsTrigger>
                                         </TabsList>
                                     }
                                 />

@@ -126,25 +126,25 @@ const columns = columnHelper.columns([
     cell: ({ row }) => (
       <Badge variant="outline" className="px-1.5 text-muted-foreground">
         {row.original.is_read ? (
-          <span className="text-zinc-600 dark:text-zinc-400">Dibaca</span>
+          <span className="text-zinc-600 dark:text-zinc-400">Read</span>
         ) : (
-          <span className="text-blue-600 dark:text-blue-400 font-bold">Baru</span>
+          <span className="text-blue-600 dark:text-blue-400 font-bold">New</span>
         )}
       </Badge>
     ),
   }),
   columnHelper.accessor("created_at", {
-    header: "Tanggal",
+    header: "Date",
     cell: ({ row }) => (
       <div className="w-32">
         <span className="text-muted-foreground">
-          {new Date(row.original.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+          {new Date(row.original.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
         </span>
       </div>
     ),
   }),
   columnHelper.accessor("name", {
-    header: "Pengirim",
+    header: "Sender",
     filterFn: "includesString" as any,
     cell: ({ row }) => {
       return <TableCellViewer item={row.original} />
@@ -152,7 +152,7 @@ const columns = columnHelper.columns([
     enableHiding: false,
   }),
   columnHelper.accessor("email", {
-    header: "Kontak",
+    header: "Contact",
     cell: ({ row }) => (
       <div className="w-48 text-muted-foreground flex flex-col gap-1">
         <a href={`mailto:${row.original.email}`} className="text-blue-600 hover:underline">{row.original.email}</a>
@@ -165,7 +165,7 @@ const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor("message", {
-    header: "Isi Pesan",
+    header: "Message",
     cell: ({ row }) => (
       <div className="text-left pr-4 truncate max-w-[200px]" title={row.original.message}>
         {row.original.message}
@@ -545,18 +545,18 @@ function TableCellViewer({ item, children, asChild, open, onOpenChange }: { item
         <DrawerHeader className="gap-1">
           <DrawerTitle>Message Details</DrawerTitle>
           <DrawerDescription>
-            Pesan dari {item.name}
+            Message from {item.name}
           </DrawerDescription>
         </DrawerHeader>
         <div className="grid gap-6 p-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-muted-foreground">Nama</span>
+              <span className="text-sm font-medium text-muted-foreground">Name</span>
               <span className="font-medium text-foreground">{item.name}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-sm font-medium text-muted-foreground">Status</span>
-              <span className="font-medium text-foreground">{item.is_read ? 'Dibaca' : 'Baru'}</span>
+              <span className="font-medium text-foreground">{item.is_read ? 'Read' : 'New'}</span>
             </div>
           </div>
           <div className="flex flex-col gap-1">
@@ -568,11 +568,11 @@ function TableCellViewer({ item, children, asChild, open, onOpenChange }: { item
             <span className="text-foreground">{item.phone || '-'}</span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-muted-foreground">Tanggal</span>
-            <span className="text-foreground">{new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+            <span className="text-sm font-medium text-muted-foreground">Date</span>
+            <span className="text-foreground">{new Date(item.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-muted-foreground">Isi Pesan</span>
+            <span className="text-sm font-medium text-muted-foreground">Message Content</span>
             <p className="text-foreground whitespace-pre-wrap">{item.message}</p>
           </div>
         </div>

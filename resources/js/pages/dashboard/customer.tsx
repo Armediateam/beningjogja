@@ -13,7 +13,7 @@ export default function CustomerContent({ customers }: { customers: any[] }) {
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">Customer Database</h1>
                             <p className="text-muted-foreground mt-1">
-                                Kelola basis data pelanggan yang pernah memesan Bening Villa dan Bening Private Pool.
+                                Manage the customer database for Bening Villa and Bening Private Pool.
                             </p>
                         </div>
 

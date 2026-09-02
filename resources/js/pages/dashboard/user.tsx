@@ -13,7 +13,7 @@ export default function UserContent({ users }: { users: any[] }) {
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
                             <p className="text-muted-foreground mt-1">
-                                Kelola akun staf dan pengelola sistem Bening Villa & Bening Private Pool.
+                                Manage staff and system administrator accounts for Bening Villa & Bening Private Pool.
                             </p>
                         </div>
 
