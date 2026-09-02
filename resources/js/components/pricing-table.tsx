@@ -76,6 +76,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
   DropdownMenu,
@@ -758,7 +759,6 @@ function AddPricingDialog() {
 
 function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
   const [isEditOpen, setIsEditOpen] = React.useState(false)
-  const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
   return (
     <div className="flex justify-end">
@@ -775,41 +775,41 @@ function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
           <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>View / Edit</DropdownMenuItem>
-          <DropdownMenuItem onSelect={(e) => {
-            e.preventDefault()
-            setIsAlertOpen(true)
-          }} variant="destructive">Delete</DropdownMenuItem>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem 
+                variant="destructive"
+                onSelect={(e) => e.preventDefault()}
+              >
+                Delete
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete this pricing package.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  variant="destructive" 
+                  onClick={() => {
+                    router.delete(`/dashboard/pricing/${item.id}`, {
+                      onSuccess: () => toast.success("Harga berhasil dihapus.")
+                    })
+                  }}
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <TableCellViewer item={item} open={isEditOpen} onOpenChange={setIsEditOpen} />
-
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this pricing package.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              variant="destructive" 
-              onClick={() => {
-                router.delete(`/dashboard/pricing/${item.id}`, {
-                  onSuccess: () => {
-                    toast.success("Harga berhasil dihapus.")
-                    setIsAlertOpen(false)
-                  }
-                })
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

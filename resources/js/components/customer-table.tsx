@@ -66,6 +66,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
   DropdownMenu,
@@ -173,7 +174,6 @@ const columns = columnHelper.columns([
 
 export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
   const [isEditOpen, setIsEditOpen] = React.useState(false)
-  const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
   return (
     <div className="flex justify-end">
@@ -191,46 +191,41 @@ export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
         <DropdownMenuContent align="end" className="w-32">
           <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>View / Edit</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem 
-            variant="destructive"
-            onSelect={(e) => {
-              e.preventDefault()
-              setIsAlertOpen(true)
-            }}
-          >
-            Delete
-          </DropdownMenuItem>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem 
+                variant="destructive"
+                onSelect={(e) => e.preventDefault()}
+              >
+                Delete
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete this customer.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  variant="destructive" 
+                  onClick={() => {
+                    router.delete(`/dashboard/customer/${item.id}`, {
+                      onSuccess: () => toast.success('Customer deleted successfully.')
+                    })
+                  }}
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <TableCellViewer item={item} open={isEditOpen} onOpenChange={setIsEditOpen} />
-
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this customer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              variant="destructive" 
-              onClick={() => {
-                router.delete(`/dashboard/customer/${item.id}`, {
-                  onSuccess: () => {
-                    toast.success('Customer deleted successfully.')
-                    setIsAlertOpen(false)
-                  }
-                })
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }
