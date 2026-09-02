@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { dashboard, login, register } from '@/routes';
+import { dashboard } from '@/routes';
 import AppLogoIcon from './app-logo-icon';
 import { Button } from './ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -72,7 +72,7 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                     {/* Desktop CTA */}
                     {!isMobile && (
                         <div className="hidden md:flex items-center gap-4">
-                            {auth.user ? (
+                            {auth.user && (
                                 <Link href={dashboard()}>
                                     <Button className={`rounded-full px-6 shadow-sm hover:shadow-md transition-all ${
                                         !isScrolled ? 'bg-white text-black hover:bg-gray-100' : ''
@@ -80,23 +80,6 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                                         Dashboard
                                     </Button>
                                 </Link>
-                            ) : (
-                                <>
-                                    <Link href={login()}>
-                                        <Button variant="ghost" className={`rounded-full px-6 font-medium ${
-                                            !isScrolled ? 'text-white hover:bg-white/10 hover:text-white' : ''
-                                        }`}>
-                                            Log in
-                                        </Button>
-                                    </Link>
-                                    <Link href={register()}>
-                                        <Button className={`rounded-full px-6 shadow-sm hover:shadow-md transition-all ${
-                                            !isScrolled ? 'bg-white text-black hover:bg-gray-100' : ''
-                                        }`}>
-                                            Daftar
-                                        </Button>
-                                    </Link>
-                                </>
                             )}
                         </div>
                     )}
@@ -131,19 +114,10 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                             </a>
                         ))}
                         <div className="pt-4 border-t border-border flex flex-col gap-3">
-                            {auth.user ? (
+                            {auth.user && (
                                 <Link href={dashboard()} className="w-full">
                                     <Button className="w-full rounded-full">Dashboard</Button>
                                 </Link>
-                            ) : (
-                                <>
-                                    <Link href={login()} className="w-full">
-                                        <Button variant="outline" className="w-full rounded-full">Log in</Button>
-                                    </Link>
-                                    <Link href={register()} className="w-full">
-                                        <Button className="w-full rounded-full">Daftar</Button>
-                                    </Link>
-                                </>
                             )}
                         </div>
                     </div>
