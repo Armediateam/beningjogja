@@ -56,7 +56,7 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                         {!isMobile && (
                             <nav className="hidden md:flex items-center gap-8">
                                 {navLinks.map((link) => (
-                                    <a
+                                    <Link
                                         key={link.name}
                                         href={link.href}
                                         className={`text-sm font-medium transition-colors ${
@@ -66,7 +66,7 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                                         }`}
                                     >
                                         {link.name}
-                                    </a>
+                                    </Link>
                                 ))}
                             </nav>
                         )}
@@ -102,13 +102,13 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                 <div className="md:hidden bg-background border-b border-border shadow-lg absolute top-full left-0 right-0 animate-in slide-in-from-top-2">
                     <div className="px-4 pt-2 pb-6 space-y-4">
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.name}
                                 href={link.href}
                                 className="block px-3 py-2 text-base font-medium text-foreground hover:bg-muted rounded-md"
                             >
                                 {link.name}
-                            </a>
+                            </Link>
                         ))}
                         <div className="pt-4 border-t border-border flex flex-col gap-3">
                             {auth.user && (
