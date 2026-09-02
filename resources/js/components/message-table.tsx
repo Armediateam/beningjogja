@@ -58,6 +58,16 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -169,6 +179,7 @@ const columns = columnHelper.columns([
 
 export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
   const [isViewOpen, setIsViewOpen] = React.useState(false)
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
   return (
     <div className="flex justify-end">
@@ -198,12 +209,9 @@ export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             variant="destructive"
-            onClick={() => {
-              if (confirm('Are you sure you want to delete this message?')) {
-                router.delete(`/dashboard/messages/${item.id}`, {
-                  onSuccess: () => toast.success('Message deleted successfully.')
-                })
-              }
+            onSelect={(e) => {
+              e.preventDefault()
+              setIsAlertOpen(true)
             }}
           >
             Delete
@@ -212,6 +220,33 @@ export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
       </DropdownMenu>
 
       <TableCellViewer item={item} open={isViewOpen} onOpenChange={setIsViewOpen} />
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this message.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              variant="destructive" 
+              onClick={() => {
+                router.delete(`/dashboard/messages/${item.id}`, {
+                  onSuccess: () => {
+                    toast.success('Message deleted successfully.')
+                    setIsAlertOpen(false)
+                  }
+                })
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -68,6 +68,16 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -748,6 +758,7 @@ function AddPricingDialog() {
 
 function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
   const [isEditOpen, setIsEditOpen] = React.useState(false)
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
   return (
     <div className="flex justify-end">
@@ -764,15 +775,41 @@ function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
           <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>View / Edit</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {
-            router.delete(`/dashboard/pricing/${item.id}`, {
-              onSuccess: () => toast.success("Harga berhasil dihapus.")
-            })
+          <DropdownMenuItem onSelect={(e) => {
+            e.preventDefault()
+            setIsAlertOpen(true)
           }} variant="destructive">Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <TableCellViewer item={item} open={isEditOpen} onOpenChange={setIsEditOpen} />
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this pricing package.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              variant="destructive" 
+              onClick={() => {
+                router.delete(`/dashboard/pricing/${item.id}`, {
+                  onSuccess: () => {
+                    toast.success("Harga berhasil dihapus.")
+                    setIsAlertOpen(false)
+                  }
+                })
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

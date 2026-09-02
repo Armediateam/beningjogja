@@ -58,6 +58,16 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -639,7 +649,8 @@ function ResetPasswordDialog({ item, open, onOpenChange }: { item: z.infer<typeo
 
 export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
   const [isEditOpen, setIsEditOpen] = React.useState(false)
-  const [isResetOpen, setIsResetOpen] = React.useState(false)
+  const [isPasswordOpen, setIsPasswordOpen] = React.useState(false)
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
   return (
     <div className="flex justify-end">
@@ -656,16 +667,13 @@ export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>Edit User</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setIsResetOpen(true)}>Reset Password</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setIsPasswordOpen(true)}>Reset Password</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             variant="destructive"
-            onClick={() => {
-              if (confirm('Are you sure you want to delete this user?')) {
-                router.delete(`/dashboard/user/${item.id}`, {
-                  onSuccess: () => toast.success('User deleted successfully.')
-                })
-              }
+            onSelect={(e) => {
+              e.preventDefault()
+              setIsAlertOpen(true)
             }}
           >
             Delete User
@@ -674,7 +682,34 @@ export function ActionMenu({ item }: { item: z.infer<typeof schema> }) {
       </DropdownMenu>
 
       <TableCellViewer item={item} open={isEditOpen} onOpenChange={setIsEditOpen} />
-      <ResetPasswordDialog item={item} open={isResetOpen} onOpenChange={setIsResetOpen} />
+      <ResetPasswordDialog item={item} open={isPasswordOpen} onOpenChange={setIsPasswordOpen} />
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this user.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              variant="destructive" 
+              onClick={() => {
+                router.delete(`/dashboard/user/${item.id}`, {
+                  onSuccess: () => {
+                    toast.success('User deleted successfully.')
+                    setIsAlertOpen(false)
+                  }
+                })
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
