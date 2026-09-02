@@ -50,43 +50,40 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                         </span>
                     </div>
 
-                    {/* Desktop Navigation */}
-                    {!isMobile && (
-                        <nav className="hidden md:flex items-center gap-8">
-                            {navLinks.map((link) => (
-                                <a
-                                    key={link.name}
-                                    href={link.href}
-                                    className={`text-sm font-medium transition-colors ${
-                                        !isScrolled 
-                                            ? 'text-gray-200 hover:text-white' 
-                                            : 'text-muted-foreground hover:text-primary'
-                                    }`}
-                                >
-                                    {link.name}
-                                </a>
-                            ))}
-                        </nav>
-                    )}
+                    {/* Menu & Actions */}
+                    <div className="flex items-center gap-4 md:gap-8">
+                        {/* Desktop Navigation */}
+                        {!isMobile && (
+                            <nav className="hidden md:flex items-center gap-8">
+                                {navLinks.map((link) => (
+                                    <a
+                                        key={link.name}
+                                        href={link.href}
+                                        className={`text-sm font-medium transition-colors ${
+                                            !isScrolled 
+                                                ? 'text-gray-200 hover:text-white' 
+                                                : 'text-muted-foreground hover:text-primary'
+                                        }`}
+                                    >
+                                        {link.name}
+                                    </a>
+                                ))}
+                            </nav>
+                        )}
 
-                    {/* Desktop CTA */}
-                    {!isMobile && (
-                        <div className="hidden md:flex items-center gap-4">
-                            {auth.user && (
-                                <Link href={dashboard()}>
-                                    <Button className={`rounded-full px-6 shadow-sm hover:shadow-md transition-all ${
-                                        !isScrolled ? 'bg-white text-black hover:bg-gray-100' : ''
-                                    }`}>
-                                        Dashboard
-                                    </Button>
-                                </Link>
-                            )}
-                        </div>
-                    )}
+                        {/* Desktop CTA */}
+                        {!isMobile && auth.user && (
+                            <Link href={dashboard()}>
+                                <Button className={`rounded-full px-6 shadow-sm hover:shadow-md transition-all ${
+                                    !isScrolled ? 'bg-white text-black hover:bg-gray-100' : ''
+                                }`}>
+                                    Dashboard
+                                </Button>
+                            </Link>
+                        )}
 
-                    {/* Mobile Menu Button */}
-                    {isMobile && (
-                        <div className="flex items-center">
+                        {/* Mobile Menu Button */}
+                        {isMobile && (
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -95,8 +92,8 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                             >
                                 {mobileMenuOpen ? <IconX /> : <IconMenu2 />}
                             </Button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 
