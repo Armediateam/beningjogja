@@ -39,9 +39,9 @@ export default function About() {
                                 <div className="bg-zinc-50 dark:bg-zinc-900 p-8 rounded-3xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
                                     <h3 className="text-xl font-bold text-amber-500 mb-4">Misi</h3>
                                     <ul className="text-muted-foreground leading-relaxed space-y-2 list-disc list-inside">
-                                        <li>Memberikan pengalaman menginap yang nyaman, aman, dan privat.</li>
-                                        <li>Menjaga standar kebersihan dan pemeliharaan fasilitas pada tingkat tertinggi.</li>
-                                        <li>Turut mempromosikan pariwisata Yogyakarta melalui keramahtamahan lokal.</li>
+                                        <li>Memberikan pelayanan terbaik dengan mengutamakan kenyamanan, kebersihan, kualitas pelayanan, dan kepuasan pelanggan.</li>
+                                        <li>Menyediakan villa dengan private pool serta penyewaan private pool per jam yang bersih dan terjangkau.</li>
+                                        <li>Menjadi pilihan utama keluarga, pasangan, maupun teman untuk menghabiskan waktu bersama dalam suasana privat.</li>
                                     </ul>
                                 </div>
                             </div>

@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 
 export default function Navbar() {
-    const waLink = "https://wa.me/6287780656710";
+    const waLink = "https://wa.me/6287830225789";
 
     const navLinks = [
         { name: 'Home', href: '/' },

@@ -54,15 +54,21 @@ export function AboutSection() {
                         <h3 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
                             Mendefinisikan Ulang Ketenangan di Jogja
                         </h3>
+                        <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                            Bening Villa & Bening Private Pool adalah layanan di bidang hospitality & rekreasi keluarga yang berlokasi di Yogyakarta. Kami menyediakan layanan villa dengan private pool serta penyewaan private pool per jam yang nyaman, bersih, dan terjangkau, dengan mengutamakan pelayanan dan kepuasan pelanggan.
+                        </p>
+                        <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                            Bening Villa menyediakan pengalaman menginap yang nyaman dengan fasilitas private pool, cocok untuk keluarga, pasangan, maupun teman yang ingin menikmati waktu bersama dalam suasana privat.
+                        </p>
                         <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                            Bening Jogja bermula dari sebuah visi sederhana: menciptakan oase ketenangan di tengah dinamisnya kota Yogyakarta. Kami memadukan keramahtamahan lokal dengan standar fasilitas premium untuk memastikan setiap tamu merasa seperti berada di rumah kedua.
+                            Bening Private Pool merupakan layanan penyewaan kolam renang secara per jam. Fasilitas ini cocok untuk berenang, bermain air, atau berkumpul bersama keluarga dan teman tanpa harus menginap di villa. Dengan suasana yang privat, bersih, nyaman, dan harga yang terjangkau, Bening Private Pool menjadi pilihan untuk menghabiskan waktu bersama orang-orang terdekat.
                         </p>
                         
                         <div className="space-y-4 mb-10">
                             {[
-                                'Privasi terjamin untuk liburan keluarga atau pasangan',
-                                'Kebersihan dan kenyamanan adalah prioritas utama kami',
-                                'Akses mudah ke berbagai destinasi wisata ikonik Jogja'
+                                'Kenyamanan dan privasi untuk keluarga, pasangan, maupun teman',
+                                'Kebersihan dan kualitas pelayanan adalah prioritas utama kami',
+                                'Harga terjangkau untuk menginap maupun sewa kolam per jam'
                             ].map((item, index) => (
                                 <div key={index} className="flex items-start gap-4 group">
                                     <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 group-hover:bg-blue-500 group-hover:text-white transition-colors">

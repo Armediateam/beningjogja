@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { IconBrandWhatsapp, IconCalendarEvent } from '@tabler/icons-react';
 
 export function CtaSection() {
-    const waLink = "https://wa.me/6287780656710";
+    const waLink = "https://wa.me/6287830225789";
 
     return (
         <section className="relative py-24 overflow-hidden" id="hubungi-kami">

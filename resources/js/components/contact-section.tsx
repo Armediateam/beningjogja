@@ -59,7 +59,7 @@ export function ContactSection() {
                                     </div>
                                     <div>
                                         <p className="font-semibold text-foreground">Alamat Villa</p>
-                                        <p className="text-muted-foreground mt-1">Jl. Kaliurang KM 10, Ngaglik, Sleman, Daerah Istimewa Yogyakarta 55581</p>
+                                        <p className="text-muted-foreground mt-1">Jl. Ki Ageng Giring, Bedakan, Pleret, Kec. Pleret, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55791</p>
                                     </div>
                                 </div>
                                 
@@ -69,8 +69,8 @@ export function ContactSection() {
                                     </div>
                                     <div>
                                         <p className="font-semibold text-foreground">WhatsApp / Reservasi</p>
-                                        <a href="https://wa.me/6287780656710" className="text-emerald-600 dark:text-emerald-400 hover:underline mt-1 block">
-                                            +62 877-8065-6710
+                                        <a href="https://wa.me/6287830225789" className="text-emerald-600 dark:text-emerald-400 hover:underline mt-1 block">
+                                            +62 878-3022-5789
                                         </a>
                                     </div>
                                 </div>
@@ -81,8 +81,8 @@ export function ContactSection() {
                                     </div>
                                     <div>
                                         <p className="font-semibold text-foreground">Email</p>
-                                        <a href="mailto:info@beningjogja.com" className="text-blue-600 dark:text-blue-400 hover:underline mt-1 block">
-                                            info@beningjogja.com
+                                        <a href="mailto:beningvillajogja@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline mt-1 block">
+                                            beningvillajogja@gmail.com
                                         </a>
                                     </div>
                                 </div>
