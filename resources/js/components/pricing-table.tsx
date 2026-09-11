@@ -223,6 +223,7 @@ const columns = columnHelper.columns([
         </Badge>
       </div>
     ),
+    meta: { className: "hidden sm:table-cell" },
   }),
   columnHelper.accessor("price", {
     header: "Price",
@@ -275,6 +276,7 @@ const columns = columnHelper.columns([
         {row.original.status}
       </Badge>
     ),
+    meta: { className: "hidden sm:table-cell" },
   }),
   columnHelper.display({
     id: "actions",
