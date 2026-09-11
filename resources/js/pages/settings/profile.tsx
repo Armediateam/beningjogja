@@ -26,7 +26,9 @@ export default function Profile({
 
     return (
         <>
-            <Head title="Profile settings" />
+            <Head title="Profile settings">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <h1 className="sr-only">Profile settings</h1>
 

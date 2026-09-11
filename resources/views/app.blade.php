@@ -30,6 +30,10 @@
             }
         </style>
 
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+
         <link rel="icon" href="/2.png" media="(prefers-color-scheme: light)">
         <link rel="icon" href="/1.png" media="(prefers-color-scheme: dark)">
         <link rel="apple-touch-icon" href="/2.png">

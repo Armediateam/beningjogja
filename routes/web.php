@@ -2,23 +2,67 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Support\VillaCatalog;
 
 Route::get('/', function () {
+    $villaPricings = \App\Models\Pricing::where('status', 'Active')->where('type', 'Villa')->get();
+
+    $cheapestWeekdaySession = \App\Models\PoolSession::where('day_type', 'weekday')->min('price');
+
+    $poolCard = (object) [
+        'id' => 'pool-summary',
+        'name' => 'Sewa Kolam Renang',
+        'code' => 'pool',
+        'type' => 'Private Pool',
+        'price' => $cheapestWeekdaySession ?? 0,
+        'status' => 'Active',
+        'description' => 'Harga mulai per sesi (1 jam) hari biasa. Harga akhir pekan/libur berbeda, lihat jadwal lengkap di halaman Sewa Kolam Renang.',
+        'image' => null,
+        'facilities' => [
+            ['icon' => 'swimming', 'name' => 'Kolam Renang Privat'],
+            ['icon' => 'users', 'name' => '11 Sesi per Hari'],
+            ['icon' => 'checklist', 'name' => 'Harga Weekday & Weekend Berbeda'],
+        ],
+    ];
+
     return inertia('welcome', [
-        'pricings' => \App\Models\Pricing::where('status', 'Active')->get()
+        'pricings' => $villaPricings->push($poolCard)
     ]);
 })->name('home');
 Route::inertia('/fasilitas', 'facility')->name('facility');
 Route::inertia('/tentang-kami', 'about')->name('about');
 Route::inertia('/hubungi-kami', 'contact')->name('contact');
 Route::post('/contact', [\App\Http\Controllers\ContactMessageController::class, 'store'])->name('contact.store');
-Route::get('/reservasi', function () {
-    return inertia('reservation', [
-        'bookings' => \App\Models\Booking::select('booking_date', 'type', 'status')->get(),
-        'pricings' => \App\Models\Pricing::where('status', 'Active')->get()
-    ]);
-})->name('reservation');
+Route::inertia('/reservasi', 'reservation')->name('reservation');
 Route::post('/reservasi', [\App\Http\Controllers\ReservationController::class, 'store'])->name('reservation.store');
+
+Route::get('/villa', function () {
+    $prices = \App\Models\Pricing::where('type', 'Villa')->pluck('price', 'code');
+
+    $rooms = collect(VillaCatalog::rooms())->map(function ($room) use ($prices) {
+        $room['price'] = (int) ($prices[$room['code']] ?? 0);
+
+        return $room;
+    })->values();
+
+    return inertia('villa', [
+        'rooms' => $rooms,
+        'bookings' => \App\Models\Booking::where('type', 'villa')
+            ->where('status', '!=', 'cancelled')
+            ->select('room_type', 'booking_date', 'check_out')
+            ->get(),
+    ]);
+})->name('villa');
+
+Route::get('/kolam-renang', function () {
+    return inertia('kolam-renang', [
+        'pool' => VillaCatalog::pool(),
+        'bookings' => \App\Models\Booking::where('type', 'pool')
+            ->where('status', '!=', 'cancelled')
+            ->select('booking_date', 'session')
+            ->get(),
+    ]);
+})->name('pool');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -59,6 +103,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('dashboard/pricing/{pricing}', [\App\Http\Controllers\PricingController::class, 'destroy'])->name('dashboard.pricing.destroy');
 
     Route::inertia('dashboard/analytic', 'dashboard/analytic')->name('dashboard.analytic');
+
+    Route::put('dashboard/pool-sessions/{poolSession}', [\App\Http\Controllers\PoolSessionController::class, 'update'])->name('dashboard.pool-sessions.update');
 });
 
 require __DIR__.'/settings.php';

@@ -4,7 +4,8 @@ import AppLogoIcon from './app-logo-icon';
 import { Button } from './ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useState, useEffect } from 'react';
-import { IconMenu2, IconX } from '@tabler/icons-react';
+import { IconMenu2, IconX, IconLanguage } from '@tabler/icons-react';
+import { useLanguage } from '@/lib/language-context';
 
 interface LandingHeaderProps {
     auth: {
@@ -16,6 +17,7 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
     const isMobile = useIsMobile();
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { lang, toggleLang } = useLanguage();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -25,12 +27,23 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const navLinks = [
-        { name: 'Beranda', href: '/' },
-        { name: 'Fasilitas', href: '/fasilitas' },
-        { name: 'Tentang Kami', href: '/tentang-kami' },
-        { name: 'Hubungi Kami', href: '/hubungi-kami' },
-    ];
+    const navLinks = lang === 'id'
+        ? [
+            { name: 'Beranda', href: '/' },
+            { name: 'Villa', href: '/villa' },
+            { name: 'Sewa Kolam Renang', href: '/kolam-renang' },
+            { name: 'Fasilitas', href: '/fasilitas' },
+            { name: 'Tentang Kami', href: '/tentang-kami' },
+            { name: 'Hubungi Kami', href: '/hubungi-kami' },
+        ]
+        : [
+            { name: 'Home', href: '/' },
+            { name: 'Villa', href: '/villa' },
+            { name: 'Pool Rental', href: '/kolam-renang' },
+            { name: 'Facilities', href: '/fasilitas' },
+            { name: 'About Us', href: '/tentang-kami' },
+            { name: 'Contact', href: '/hubungi-kami' },
+        ];
 
     return (
         <header
@@ -69,6 +82,21 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                                     </Link>
                                 ))}
                             </nav>
+                        )}
+
+                        {/* Language Toggle */}
+                        {!isMobile && (
+                            <button
+                                onClick={toggleLang}
+                                className={`flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                                    !isScrolled
+                                        ? 'border-white/30 text-white hover:bg-white/10'
+                                        : 'border-border text-foreground hover:bg-muted'
+                                }`}
+                            >
+                                <IconLanguage className="w-4 h-4" />
+                                {lang === 'id' ? 'ID' : 'EN'}
+                            </button>
                         )}
 
                         {/* Desktop CTA */}
@@ -111,6 +139,13 @@ export function LandingHeader({ auth }: LandingHeaderProps) {
                             </Link>
                         ))}
                         <div className="pt-4 border-t border-border flex flex-col gap-3">
+                            <button
+                                onClick={toggleLang}
+                                className="flex items-center justify-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-full border border-border text-foreground hover:bg-muted w-full"
+                            >
+                                <IconLanguage className="w-4 h-4" />
+                                {lang === 'id' ? 'Bahasa Indonesia' : 'English'}
+                            </button>
                             {auth.user && (
                                 <Link href={dashboard()} className="w-full">
                                     <Button className="w-full rounded-full">Dashboard</Button>

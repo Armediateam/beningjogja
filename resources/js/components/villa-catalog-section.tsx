@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { Button } from './ui/button';
 import { 
     IconBed, IconUsers, IconSwimming, IconChecklist, 
@@ -131,8 +132,8 @@ export function VillaCatalogSection({ pricings = [] }: { pricings?: any[] }) {
                                 />
                                 <div className="absolute top-4 right-4 bg-white/90 dark:bg-black/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
                                     <span className="text-sm font-bold text-foreground">
+                                        <span className="text-xs font-normal text-muted-foreground">Mulai </span>
                                         {service.price}
-                                        <span className="text-xs font-normal text-muted-foreground"> / sesi</span>
                                     </span>
                                 </div>
                             </div>
@@ -159,11 +160,11 @@ export function VillaCatalogSection({ pricings = [] }: { pricings?: any[] }) {
 
                                 {/* Actions */}
                                 <div className="flex flex-col xl:flex-row gap-3 mt-auto">
-                                    <a href="/reservasi" className="w-full">
+                                    <Link href="/reservasi" className="w-full">
                                         <Button className="w-full rounded-full text-sm h-11 shadow-md hover:shadow-lg transition-shadow">
                                             Pesan Sekarang
                                         </Button>
-                                    </a>
+                                    </Link>
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <Button variant="outline" className="w-full xl:w-auto rounded-full px-6 h-11">
@@ -199,9 +200,9 @@ export function VillaCatalogSection({ pricings = [] }: { pricings?: any[] }) {
                                                 </div>
                                             </div>
                                             <div className="flex justify-end mt-2">
-                                                <a href="/reservasi" className="w-full sm:w-auto">
+                                                <Link href="/reservasi" className="w-full sm:w-auto">
                                                     <Button className="w-full rounded-full">Pesan Sekarang</Button>
-                                                </a>
+                                                </Link>
                                             </div>
                                         </DialogContent>
                                     </Dialog>

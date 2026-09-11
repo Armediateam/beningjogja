@@ -5,7 +5,9 @@ import { UserDataTable } from '@/components/user-table';
 export default function UserContent({ users }: { users: any[] }) {
     return (
         <>
-            <Head title="User Management" />
+            <Head title="User Management">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
             <div className="flex flex-1 flex-col">
                 <div className="@container/main flex flex-1 flex-col gap-2">
                     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 p-6">

@@ -9,7 +9,9 @@ import { store } from '@/routes/password/confirm';
 export default function ConfirmPassword() {
     return (
         <>
-            <Head title="Confirm password" />
+            <Head title="Confirm password">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <Form {...store.form()} resetOnSuccess={['password']}>
                 {({ processing, errors }) => (

@@ -2,17 +2,20 @@ import { createInertiaApp } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
+import { LanguageProvider } from '@/lib/language-context';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+const PUBLIC_PAGES = ['welcome', 'facility', 'about', 'contact', 'reservation', 'villa', 'kolam-renang'];
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {
         switch (true) {
-            case name === 'welcome' || name === 'facility' || name === 'about' || name === 'contact' || name === 'reservation':
+            case PUBLIC_PAGES.includes(name):
                 return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
@@ -25,10 +28,12 @@ createInertiaApp({
     strictMode: true,
     withApp(app) {
         return (
-            <TooltipProvider delayDuration={0}>
-                {app}
-                <Toaster position="top-right" />
-            </TooltipProvider>
+            <LanguageProvider>
+                <TooltipProvider delayDuration={0}>
+                    {app}
+                    <Toaster position="top-right" />
+                </TooltipProvider>
+            </LanguageProvider>
         );
     },
     progress: {

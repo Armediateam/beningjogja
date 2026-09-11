@@ -12,8 +12,11 @@ class Booking extends Model
         'customer_email',
         'customer_phone',
         'type',
+        'room_type',
         'total_price',
         'booking_date',
+        'check_out',
+        'session',
         'status',
         'payment_proof',
     ];

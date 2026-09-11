@@ -18,7 +18,9 @@ export default function Security(props: Props) {
 
     return (
         <>
-            <Head title="Security settings" />
+            <Head title="Security settings">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <h1 className="sr-only">Security settings</h1>
 

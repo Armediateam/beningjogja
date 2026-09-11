@@ -12,7 +12,9 @@ export default function About() {
 
     return (
         <>
-            <Head title="Tentang Kami" />
+            <Head title="Tentang Kami - Bening Jogja">
+                <meta name="description" content="Kenali lebih dekat Bening Jogja, penyedia villa dan private pool premium di Yogyakarta yang mengutamakan kenyamanan, kualitas fasilitas, dan pengalaman menginap terbaik bagi setiap tamu." />
+            </Head>
             <div className="flex min-h-screen flex-col bg-[#FDFDFC] dark:bg-[#0a0a0a]">
                 <LandingHeader auth={auth} />
                 

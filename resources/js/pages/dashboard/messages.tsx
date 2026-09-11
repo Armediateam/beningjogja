@@ -15,7 +15,9 @@ interface Message {
 export default function Messages({ messages }: { messages: Message[] }) {
     return (
         <>
-            <Head title="Inbox" />
+            <Head title="Inbox">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <div className="flex flex-1 flex-col">
                 <div className="@container/main flex flex-1 flex-col gap-2">

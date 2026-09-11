@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pricing;
+use App\Models\PoolSession;
 
 class PricingController extends Controller
 {
     public function index()
     {
         return inertia('dashboard/pricing', [
-            'pricings' => Pricing::all()
+            'pricings' => Pricing::all(),
+            'poolSessions' => PoolSession::orderBy('sort_order')->get(),
         ]);
     }
 

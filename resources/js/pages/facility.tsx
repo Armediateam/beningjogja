@@ -10,7 +10,9 @@ export default function Facility() {
 
     return (
         <>
-            <Head title="Fasilitas" />
+            <Head title="Fasilitas - Bening Jogja">
+                <meta name="description" content="Jelajahi fasilitas lengkap Bening Jogja, mulai dari kolam renang pribadi, kamar tidur nyaman, hingga fasilitas pendukung lainnya untuk pengalaman menginap yang mewah dan berkesan." />
+            </Head>
             <div className="flex min-h-screen flex-col bg-[#FDFDFC] dark:bg-[#0a0a0a]">
                 <LandingHeader auth={auth} />
                 

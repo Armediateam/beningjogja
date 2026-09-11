@@ -6,7 +6,9 @@ import { edit as editAppearance } from '@/routes/appearance';
 export default function Appearance() {
     return (
         <>
-            <Head title="Appearance settings" />
+            <Head title="Appearance settings">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <h1 className="sr-only">Appearance settings</h1>
 

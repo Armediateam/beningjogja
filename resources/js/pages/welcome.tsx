@@ -16,7 +16,9 @@ export default function Welcome({ pricings = [] }: { pricings?: any[] }) {
 
     return (
         <>
-            <Head title="Welcome" />
+            <Head title="Bening Jogja - Villa & Private Pool Eksklusif di Yogyakarta">
+                <meta name="description" content="Bening Jogja menghadirkan villa dan private pool mewah di jantung Yogyakarta. Nikmati fasilitas premium, desain tropis modern, dan pelayanan profesional untuk liburan tak terlupakan." />
+            </Head>
             <div className="flex min-h-screen flex-col bg-[#FDFDFC] dark:bg-[#0a0a0a]">
                 <LandingHeader auth={auth} />
                 <HeroSection />
