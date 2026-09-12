@@ -44,22 +44,53 @@ class ReservationController extends Controller
                 $nights
             );
         } else {
-            $session = VillaCatalog::poolSession($validated['booking_date'], $validated['session']);
+            $sessionCodes = array_values(array_filter(array_map('trim', explode(',', $validated['session']))));
 
-            if (!$session) {
+            if (empty($sessionCodes)) {
                 throw ValidationException::withMessages([
-                    'session' => 'Sesi yang dipilih tidak tersedia.',
+                    'session' => 'Pilih minimal satu sesi.',
                 ]);
             }
+
+            $sessions = [];
+            foreach ($sessionCodes as $code) {
+                $session = VillaCatalog::poolSession($validated['booking_date'], $code);
+
+                if (!$session) {
+                    throw ValidationException::withMessages([
+                        'session' => 'Sesi yang dipilih tidak tersedia.',
+                    ]);
+                }
+
+                $sessions[] = $session;
+            }
+
+            $bookedCodes = Booking::where('type', 'pool')
+                ->where('booking_date', $validated['booking_date'])
+                ->where('status', '!=', 'cancelled')
+                ->pluck('session')
+                ->flatMap(fn ($s) => array_map('trim', explode(',', $s)))
+                ->all();
+
+            if (array_intersect($sessionCodes, $bookedCodes)) {
+                throw ValidationException::withMessages([
+                    'session' => 'Salah satu sesi yang dipilih sudah dibooking.',
+                ]);
+            }
+
+            $sessionsPrice = array_sum(array_column($sessions, 'price'));
 
             $memberCount = (int) $validated['member_count'];
             $extraMembers = max(0, $memberCount - self::POOL_MAX_CAPACITY);
             $extraCharge = $extraMembers * self::POOL_EXTRA_CHARGE_PER_PERSON;
 
-            $totalPrice = $session['price'] + $extraCharge;
-            $summary = $session['time'] . ($extraCharge > 0
+            $totalPrice = $sessionsPrice + $extraCharge;
+            $timesLabel = implode(', ', array_column($sessions, 'time'));
+            $summary = $timesLabel . ($extraCharge > 0
                 ? sprintf(' (%d orang, +Rp %s biaya tambahan)', $memberCount, number_format($extraCharge, 0, ',', '.'))
                 : sprintf(' (%d orang)', $memberCount));
+
+            $validated['session'] = implode(',', $sessionCodes);
         }
 
         do {

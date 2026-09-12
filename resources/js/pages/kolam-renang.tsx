@@ -26,6 +26,7 @@ const copy = {
         subtitle: 'Pilih tanggal dan sesi yang tersedia, lalu konfirmasi melalui WhatsApp.',
         stepDateTitle: '1. Pilih Tanggal',
         stepSessionTitle: '2. Pilih Sesi',
+        stepSessionHint: 'Bisa pilih lebih dari satu sesi jika ingin berenang lebih lama.',
         legendAvailable: 'Kosong',
         legendBooked: 'Penuh',
         legendPast: 'Lewat',
@@ -58,6 +59,7 @@ const copy = {
         subtitle: 'Pick an available date and session, then confirm via WhatsApp.',
         stepDateTitle: '1. Choose a Date',
         stepSessionTitle: '2. Choose a Session',
+        stepSessionHint: 'You can select more than one session for a longer swim.',
         legendAvailable: 'Available',
         legendBooked: 'Booked',
         legendPast: 'Past',
@@ -92,7 +94,7 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
     const t = useTranslation(copy);
 
     const [selectedDate, setSelectedDate] = useState('');
-    const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+    const [selectedSessions, setSelectedSessions] = useState<Session[]>([]);
     const [currentMonth, setCurrentMonth] = useState(() => new Date(2026, 9, 1));
     const [step, setStep] = useState<'select' | 'success'>('select');
     const [bookingCode, setBookingCode] = useState('');
@@ -117,6 +119,8 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
     const memberCount = parseInt(data.member_count, 10) || 0;
     const extraMembers = Math.max(0, memberCount - POOL_MAX_CAPACITY);
     const extraCharge = extraMembers * POOL_EXTRA_CHARGE_PER_PERSON;
+    const sessionsPrice = selectedSessions.reduce((sum, s) => sum + s.price, 0);
+    const sessionsTimeLabel = selectedSessions.map(s => s.time).join(', ');
 
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -132,9 +136,12 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
             if (new Date(year, month, i) < new Date(new Date().setHours(0, 0, 0, 0))) {
                 status = 'past';
             } else {
-                const dayBookings = bookings.filter(b => b.booking_date === dateStr);
+                const bookedCount = bookings
+                    .filter(b => b.booking_date === dateStr)
+                    .flatMap(b => b.session.split(','))
+                    .length;
                 const sessionsForDay = isWeekend(dateStr) ? pool.weekend : pool.weekday;
-                if (dayBookings.length >= sessionsForDay.length) status = 'booked';
+                if (bookedCount >= sessionsForDay.length) status = 'booked';
             }
             arr.push({ date: i, dateStr, status });
         }
@@ -149,7 +156,9 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
     const sessionsForSelectedDate = useMemo(() => {
         if (!selectedDate) return [];
         const list = isWeekend(selectedDate) ? pool.weekend : pool.weekday;
-        const bookedCodes = bookings.filter(b => b.booking_date === selectedDate).map(b => b.session);
+        const bookedCodes = bookings
+            .filter(b => b.booking_date === selectedDate)
+            .flatMap(b => b.session.split(','));
         return list.map(s => ({ ...s, booked: bookedCodes.includes(s.code) }));
     }, [selectedDate, bookings]);
 
@@ -158,9 +167,9 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedDate || !selectedSession) return;
+        if (!selectedDate || selectedSessions.length === 0) return;
         setData('booking_date', selectedDate);
-        setData('session', selectedSession.code);
+        setData('session', selectedSessions.map(s => s.code).join(','));
 
         post('/reservasi', {
             preserveScroll: true,
@@ -262,7 +271,7 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
                                                         onClick={() => {
                                                             if (day.status === 'available') {
                                                                 setSelectedDate(day.dateStr);
-                                                                setSelectedSession(null);
+                                                                setSelectedSessions([]);
                                                             }
                                                         }}
                                                         className={`flex flex-col items-center justify-center p-1 sm:p-2 h-14 sm:h-16 md:h-20 rounded-xl md:rounded-2xl border-2 cursor-pointer transition-all ${bgClass}`}
@@ -276,40 +285,48 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
 
                                     {selectedDate && (
                                         <div className="bg-white dark:bg-zinc-900 rounded-3xl p-4 sm:p-6 md:p-8 border border-border/50 shadow-sm">
-                                            <h3 className="text-lg md:text-xl font-bold text-foreground mb-6">{t.stepSessionTitle}</h3>
+                                            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1">{t.stepSessionTitle}</h3>
+                                            <p className="text-sm text-muted-foreground mb-6">{t.stepSessionHint}</p>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                {sessionsForSelectedDate.map(session => (
-                                                    <button
-                                                        key={session.code}
-                                                        type="button"
-                                                        disabled={session.booked}
-                                                        onClick={() => setSelectedSession(session)}
-                                                        className={`flex items-center justify-between p-4 rounded-2xl border-2 text-left transition-all ${
-                                                            session.booked
-                                                                ? 'opacity-40 cursor-not-allowed border-border bg-zinc-50 dark:bg-zinc-950'
-                                                                : selectedSession?.code === session.code
-                                                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30 shadow-md'
-                                                                    : 'border-border hover:border-blue-300 hover:shadow-sm'
-                                                        }`}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <IconClock className="w-5 h-5 text-muted-foreground shrink-0" />
-                                                            <span className="font-semibold text-sm text-foreground">{session.time}</span>
-                                                        </div>
-                                                        <span className="font-bold text-sm text-foreground">{formatPrice(session.price)}</span>
-                                                    </button>
-                                                ))}
+                                                {sessionsForSelectedDate.map(session => {
+                                                    const isSelected = selectedSessions.some(s => s.code === session.code);
+                                                    return (
+                                                        <button
+                                                            key={session.code}
+                                                            type="button"
+                                                            disabled={session.booked}
+                                                            onClick={() => setSelectedSessions(prev =>
+                                                                prev.some(s => s.code === session.code)
+                                                                    ? prev.filter(s => s.code !== session.code)
+                                                                    : [...prev, session]
+                                                            )}
+                                                            className={`flex items-center justify-between p-4 rounded-2xl border-2 text-left transition-all ${
+                                                                session.booked
+                                                                    ? 'opacity-40 cursor-not-allowed border-border bg-zinc-50 dark:bg-zinc-950'
+                                                                    : isSelected
+                                                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30 shadow-md'
+                                                                        : 'border-border hover:border-blue-300 hover:shadow-sm'
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <IconClock className="w-5 h-5 text-muted-foreground shrink-0" />
+                                                                <span className="font-semibold text-sm text-foreground">{session.time}</span>
+                                                            </div>
+                                                            <span className="font-bold text-sm text-foreground">{formatPrice(session.price)}</span>
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}
 
-                                    {selectedDate && selectedSession && (
-                                        <p className="text-sm text-muted-foreground bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl px-4 py-3">
+                                    {selectedDate && selectedSessions.length > 0 && (
+                                        <p className="text-base font-bold text-black dark:text-white bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-900/50 rounded-2xl px-4 py-3">
                                             {t.capacityNote}
                                         </p>
                                     )}
 
-                                    {selectedDate && selectedSession && (
+                                    {selectedDate && selectedSessions.length > 0 && (
                                         <form id="pool-checkout-form" onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 border border-border/50 shadow-sm space-y-6">
                                             <h3 className="text-lg md:text-xl font-bold text-foreground">{t.guestInfo}</h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -359,7 +376,7 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
                                     <div className="bg-white dark:bg-zinc-900 rounded-3xl p-4 sm:p-6 md:p-8 border border-border/50 shadow-xl sticky top-24 flex flex-col min-h-[400px]">
                                         <h3 className="text-lg md:text-xl font-bold text-foreground mb-6">{t.summary}</h3>
 
-                                        {!selectedDate || !selectedSession ? (
+                                        {!selectedDate || selectedSessions.length === 0 ? (
                                             <div className="flex-grow flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-border rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/50">
                                                 <p className="text-muted-foreground text-sm">{t.selectHint}</p>
                                             </div>
@@ -375,7 +392,7 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
                                                     <div className="h-px bg-border/50 w-full" />
                                                     <div>
                                                         <p className="text-sm font-medium text-muted-foreground mb-1">{t.session}</p>
-                                                        <p className="text-lg font-bold text-foreground">{selectedSession.time}</p>
+                                                        <p className="text-lg font-bold text-foreground">{sessionsTimeLabel}</p>
                                                     </div>
                                                     {extraCharge > 0 && (
                                                         <>
@@ -391,7 +408,7 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
                                                 <div className="mt-auto pt-6 border-t border-border flex flex-col gap-4">
                                                     <div className="flex justify-between items-end">
                                                         <p className="text-muted-foreground text-sm font-medium">{t.total}</p>
-                                                        <p className="text-2xl font-black text-foreground">{formatPrice(selectedSession.price + extraCharge)}</p>
+                                                        <p className="text-2xl font-black text-foreground">{formatPrice(sessionsPrice + extraCharge)}</p>
                                                     </div>
                                                     <Button
                                                         size="lg"
