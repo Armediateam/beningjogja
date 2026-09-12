@@ -30,13 +30,16 @@ const copy = {
         legendBooked: 'Penuh',
         legendPast: 'Lewat',
         legendSelected: 'Pilihan Anda',
+        capacityNote: 'Harga yang tercantum berlaku untuk kapasitas maksimal 5 orang. Apabila jumlah member melebihi kapasitas tersebut, akan dikenakan additional charge sebesar Rp15.000/orang.',
         guestInfo: 'Informasi Pemesan',
         name: 'Nama Lengkap',
+        memberCount: 'Jumlah Member',
         email: 'Email',
         phone: 'No. WhatsApp',
         summary: 'Ringkasan Pesanan',
         date: 'Tanggal',
         session: 'Sesi',
+        extraCharge: 'Biaya Tambahan',
         total: 'Total Tagihan',
         submit: 'Booking & Konfirmasi WhatsApp',
         submitting: 'Memproses...',
@@ -59,13 +62,16 @@ const copy = {
         legendBooked: 'Booked',
         legendPast: 'Past',
         legendSelected: 'Your Selection',
+        capacityNote: 'The listed price applies to a maximum capacity of 5 people. If the number of members exceeds that capacity, an additional charge of Rp15,000/person will apply.',
         guestInfo: 'Guest Information',
         name: 'Full Name',
+        memberCount: 'Number of Members',
         email: 'Email',
         phone: 'WhatsApp Number',
         summary: 'Order Summary',
         date: 'Date',
         session: 'Session',
+        extraCharge: 'Additional Charge',
         total: 'Total',
         submit: 'Book & Confirm on WhatsApp',
         submitting: 'Processing...',
@@ -100,10 +106,17 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
         customer_name: '',
         customer_email: '',
         customer_phone: '',
+        member_count: '1',
         type: 'pool',
         booking_date: '',
         session: '',
     });
+
+    const POOL_MAX_CAPACITY = 5;
+    const POOL_EXTRA_CHARGE_PER_PERSON = 15000;
+    const memberCount = parseInt(data.member_count, 10) || 0;
+    const extraMembers = Math.max(0, memberCount - POOL_MAX_CAPACITY);
+    const extraCharge = extraMembers * POOL_EXTRA_CHARGE_PER_PERSON;
 
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -291,6 +304,12 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
                                     )}
 
                                     {selectedDate && selectedSession && (
+                                        <p className="text-sm text-muted-foreground bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl px-4 py-3">
+                                            {t.capacityNote}
+                                        </p>
+                                    )}
+
+                                    {selectedDate && selectedSession && (
                                         <form id="pool-checkout-form" onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 border border-border/50 shadow-sm space-y-6">
                                             <h3 className="text-lg md:text-xl font-bold text-foreground">{t.guestInfo}</h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -302,6 +321,15 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
                                                         className="w-full h-12 px-4 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-border focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                                                     />
                                                     {errors.customer_name && <p className="text-sm text-red-500">{errors.customer_name}</p>}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium text-foreground">{t.memberCount}</label>
+                                                    <input
+                                                        type="number" min={1} required value={data.member_count}
+                                                        onChange={e => setData('member_count', e.target.value)}
+                                                        className="w-full h-12 px-4 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-border focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                                                    />
+                                                    {errors.member_count && <p className="text-sm text-red-500">{errors.member_count}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium text-foreground">{t.email}</label>
@@ -349,12 +377,21 @@ export default function KolamRenang({ pool, bookings = [] }: { pool: { weekday: 
                                                         <p className="text-sm font-medium text-muted-foreground mb-1">{t.session}</p>
                                                         <p className="text-lg font-bold text-foreground">{selectedSession.time}</p>
                                                     </div>
+                                                    {extraCharge > 0 && (
+                                                        <>
+                                                            <div className="h-px bg-border/50 w-full" />
+                                                            <div>
+                                                                <p className="text-sm font-medium text-muted-foreground mb-1">{t.extraCharge}</p>
+                                                                <p className="text-lg font-bold text-foreground">{formatPrice(extraCharge)}</p>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
 
                                                 <div className="mt-auto pt-6 border-t border-border flex flex-col gap-4">
                                                     <div className="flex justify-between items-end">
                                                         <p className="text-muted-foreground text-sm font-medium">{t.total}</p>
-                                                        <p className="text-2xl font-black text-foreground">{formatPrice(selectedSession.price)}</p>
+                                                        <p className="text-2xl font-black text-foreground">{formatPrice(selectedSession.price + extraCharge)}</p>
                                                     </div>
                                                     <Button
                                                         size="lg"

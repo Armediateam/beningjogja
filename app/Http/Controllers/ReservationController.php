@@ -13,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 class ReservationController extends Controller
 {
     protected const ADMIN_WHATSAPP = '6287830225789';
+    protected const POOL_MAX_CAPACITY = 5;
+    protected const POOL_EXTRA_CHARGE_PER_PERSON = 15000;
 
     public function store(Request $request)
     {
@@ -25,6 +27,7 @@ class ReservationController extends Controller
             'booking_date' => 'required|date',
             'check_out' => 'required_if:type,villa|nullable|date|after:booking_date',
             'session' => 'required_if:type,pool|nullable|string',
+            'member_count' => 'required_if:type,pool|nullable|integer|min:1',
         ]);
 
         if ($validated['type'] === 'villa') {
@@ -49,8 +52,14 @@ class ReservationController extends Controller
                 ]);
             }
 
-            $totalPrice = $session['price'];
-            $summary = $session['time'];
+            $memberCount = (int) $validated['member_count'];
+            $extraMembers = max(0, $memberCount - self::POOL_MAX_CAPACITY);
+            $extraCharge = $extraMembers * self::POOL_EXTRA_CHARGE_PER_PERSON;
+
+            $totalPrice = $session['price'] + $extraCharge;
+            $summary = $session['time'] . ($extraCharge > 0
+                ? sprintf(' (%d orang, +Rp %s biaya tambahan)', $memberCount, number_format($extraCharge, 0, ',', '.'))
+                : sprintf(' (%d orang)', $memberCount));
         }
 
         do {
@@ -68,6 +77,7 @@ class ReservationController extends Controller
             'booking_date' => $validated['booking_date'],
             'check_out' => $validated['check_out'] ?? null,
             'session' => $validated['session'] ?? null,
+            'member_count' => $validated['member_count'] ?? null,
             'status' => 'pending',
         ]);
 

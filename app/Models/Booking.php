@@ -17,6 +17,7 @@ class Booking extends Model
         'booking_date',
         'check_out',
         'session',
+        'member_count',
         'status',
         'payment_proof',
     ];
