@@ -24,6 +24,8 @@ interface BookingRow {
     check_out: string;
 }
 
+type DailyPrices = Record<string, { standard: number; family: number; suite: number }>;
+
 const copy = {
     id: {
         title: 'Sewa Villa',
@@ -99,7 +101,7 @@ const copy = {
     },
 };
 
-export default function Villa({ rooms, bookings = [] }: { rooms: Room[]; bookings?: BookingRow[] }) {
+export default function Villa({ rooms, bookings = [], dailyPrices = {} }: { rooms: Room[]; bookings?: BookingRow[]; dailyPrices?: DailyPrices }) {
     const { auth } = usePage<any>().props;
     const t = useTranslation(copy);
 
@@ -173,8 +175,19 @@ export default function Villa({ rooms, bookings = [] }: { rooms: Room[]; booking
 
     const totalPrice = useMemo(() => {
         if (!selectedRoom || !nights) return 0;
-        return selectedRoom.price * nights;
-    }, [selectedRoom, nights]);
+
+        let total = 0;
+        const cursor = new Date(checkIn);
+
+        for (let i = 0; i < nights; i++) {
+            const dateStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
+            const dayPrice = dailyPrices[dateStr]?.[selectedRoom.code as 'standard' | 'family' | 'suite'];
+            total += dayPrice ?? selectedRoom.price;
+            cursor.setDate(cursor.getDate() + 1);
+        }
+
+        return total;
+    }, [selectedRoom, nights, checkIn, dailyPrices]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

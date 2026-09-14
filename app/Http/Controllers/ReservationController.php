@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
-use App\Models\Pricing;
 use App\Support\VillaCatalog;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -123,17 +122,29 @@ class ReservationController extends Controller
 
     protected function calculateVillaTotal(string $roomType, string $checkIn, string $checkOut): array
     {
-        $pricePerNight = Pricing::where('type', 'Villa')->where('code', $roomType)->value('price');
+        $nights = (int) ((strtotime($checkOut) - strtotime($checkIn)) / 86400);
 
-        if ($pricePerNight === null) {
+        if ($nights < 1) {
+            throw ValidationException::withMessages([
+                'check_out' => 'Tanggal check-out tidak valid.',
+            ]);
+        }
+
+        $totalPrice = 0;
+        $cursor = strtotime($checkIn);
+
+        for ($i = 0; $i < $nights; $i++) {
+            $totalPrice += VillaCatalog::priceForDate(date('Y-m-d', $cursor), $roomType);
+            $cursor = strtotime('+1 day', $cursor);
+        }
+
+        if ($totalPrice <= 0) {
             throw ValidationException::withMessages([
                 'room_type' => 'Harga untuk tipe kamar ini belum tersedia.',
             ]);
         }
 
-        $nights = (int) ((strtotime($checkOut) - strtotime($checkIn)) / 86400);
-
-        return [$pricePerNight * $nights, $nights];
+        return [$totalPrice, $nights];
     }
 
     protected function buildWhatsappMessage(Booking $booking, string $summary): string

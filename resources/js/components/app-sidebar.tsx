@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, DollarSign, CalendarCheck, BarChart3, Users, Contact, Mail } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, DollarSign, CalendarCheck, CalendarDays, BarChart3, Users, Contact, Mail } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -41,6 +41,11 @@ const mainNavItems: NavItem[] = [
         title: 'Pricing',
         href: '/dashboard/pricing',
         icon: DollarSign,
+    },
+    {
+        title: 'Kalender Harga Villa',
+        href: '/dashboard/pricing/kalender',
+        icon: CalendarDays,
     },
     {
         title: 'Analytic',

@@ -3,6 +3,8 @@
 namespace App\Support;
 
 use App\Models\PoolSession;
+use App\Models\Pricing;
+use App\Models\VillaDailyPrice;
 
 class VillaCatalog
 {
@@ -68,5 +70,45 @@ class VillaCatalog
         }
 
         return null;
+    }
+
+    public static function priceForDate(string $date, string $roomCode): int
+    {
+        $column = $roomCode . '_price';
+
+        $daily = VillaDailyPrice::where('date', $date)->value($column);
+
+        if ($daily !== null) {
+            return (int) $daily;
+        }
+
+        return (int) Pricing::where('type', 'Villa')->where('code', $roomCode)->value('price');
+    }
+
+    public static function dailyPricesBetween(string $start, string $end): array
+    {
+        $rows = VillaDailyPrice::whereBetween('date', [$start, $end])->get()
+            ->keyBy(fn ($row) => $row->date->format('Y-m-d'));
+
+        $fallback = Pricing::where('type', 'Villa')->pluck('price', 'code');
+
+        $result = [];
+        $cursor = strtotime($start);
+        $endTs = strtotime($end);
+
+        while ($cursor <= $endTs) {
+            $dateStr = date('Y-m-d', $cursor);
+            $row = $rows->get($dateStr);
+
+            $result[$dateStr] = [
+                'standard' => $row ? (int) $row->standard_price : (int) ($fallback['standard'] ?? 0),
+                'family' => $row ? (int) $row->family_price : (int) ($fallback['family'] ?? 0),
+                'suite' => $row ? (int) $row->suite_price : (int) ($fallback['suite'] ?? 0),
+            ];
+
+            $cursor = strtotime('+1 day', $cursor);
+        }
+
+        return $result;
     }
 }

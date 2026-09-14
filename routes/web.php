@@ -45,8 +45,12 @@ Route::get('/villa', function () {
         return $room;
     })->values();
 
+    $rangeStart = date('Y-m-d');
+    $rangeEnd = date('Y-m-d', strtotime('+8 months'));
+
     return inertia('villa', [
         'rooms' => $rooms,
+        'dailyPrices' => VillaCatalog::dailyPricesBetween($rangeStart, $rangeEnd),
         'bookings' => \App\Models\Booking::where('type', 'villa')
             ->where('status', '!=', 'cancelled')
             ->select('room_type', 'booking_date', 'check_out')
@@ -101,6 +105,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('dashboard/pricing', [\App\Http\Controllers\PricingController::class, 'store'])->name('dashboard.pricing.store');
     Route::put('dashboard/pricing/{pricing}', [\App\Http\Controllers\PricingController::class, 'update'])->name('dashboard.pricing.update');
     Route::delete('dashboard/pricing/{pricing}', [\App\Http\Controllers\PricingController::class, 'destroy'])->name('dashboard.pricing.destroy');
+
+    // Villa daily price calendar
+    Route::get('dashboard/pricing/kalender', [\App\Http\Controllers\VillaDailyPriceController::class, 'index'])->name('dashboard.pricing.kalender');
+    Route::get('dashboard/pricing/kalender/data', [\App\Http\Controllers\VillaDailyPriceController::class, 'data'])->name('dashboard.pricing.kalender.data');
+    Route::post('dashboard/pricing/kalender', [\App\Http\Controllers\VillaDailyPriceController::class, 'update'])->name('dashboard.pricing.kalender.update');
+    Route::post('dashboard/pricing/kalender/bulk', [\App\Http\Controllers\VillaDailyPriceController::class, 'bulkUpdate'])->name('dashboard.pricing.kalender.bulk');
 
     Route::inertia('dashboard/analytic', 'dashboard/analytic')->name('dashboard.analytic');
 
