@@ -60,6 +60,7 @@ export function ContactSection() {
                                     <div>
                                         <p className="font-semibold text-foreground">Alamat Villa</p>
                                         <p className="text-muted-foreground mt-1">Jl. Ki Ageng Giring, Bedakan, Pleret, Kec. Pleret, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55791</p>
+                                        <p className="text-muted-foreground">4CM3+R4 Pleret, Kabupaten Bantul, Daerah Istimewa Yogyakarta</p>
                                     </div>
                                 </div>
                                 
@@ -92,7 +93,7 @@ export function ContactSection() {
                         {/* Map Embed */}
                         <div className="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-border/50 shadow-sm h-64 relative group">
                             <iframe 
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31633.2429402512!2d110.3741355!3d-7.6679549!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a5eb4089c25bb%3A0xc367b6058d927b5e!2sJl.%20Kaliurang%2C%20Kabupaten%20Sleman%2C%20Daerah%20Istimewa%20Yogyakarta!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid" 
+                                src="https://www.google.com/maps?q=Bening+Villa+and+Private+Pool,+Jl.+Ki+Ageng+Giring,+Bedakan,+Pleret,+Kec.+Pleret,+Kabupaten+Bantul,+Daerah+Istimewa+Yogyakarta+55791+4CM3%2BR4&output=embed"
                                 width="100%" 
                                 height="100%" 
                                 style={{ border: 0 }} 
